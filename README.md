@@ -31,6 +31,7 @@ npm install @united-workspace/n8n-nodes-microsoft-planner
 ## Prerequisites
 
 You need to have:
+
 - An active Microsoft 365 subscription
 - A Microsoft Planner plan created
 - Azure AD App Registration with the following API permissions:
@@ -133,28 +134,71 @@ Configure the Microsoft Planner OAuth2 API credentials in n8n:
 The node is marked as `usableAsTool`, so n8n can generate a corresponding AI tool variant for Agent workflows. This lets an AI agent create, read, update, and organize Microsoft Planner data through the same community node.
 
 For the best results in Agent workflows:
+
 - Prefer entering Planner, Bucket, Group, and Task IDs directly when configuring the tool
-- In tool mode, use ID-based fields instead of the list selectors where available
+- In tool mode, prefer the text and JSON fields instead of list selectors, date pickers, and dropdowns
+- Use `dueDateTimeText` and `startDateTimeText` for agent-supplied dates
+- Use `priorityText` with `urgent`, `important`, `medium`, or `low`
+- Use `scopeText`, `filterByText`, and `contentTypeText` for agent-friendly mode switches
 - For complex task updates, prefer the JSON fields for attachments, checklist items, and plan category labels
 - Use a clear tool description in n8n so the model knows whether it should create, search, update, or delete Planner data
+
+### Tool Mode Field Guide
+
+When the node runs as an n8n AI tool, the UI exposes simplified fields so the AI can fill more values through placeholders.
+
+- `attachmentsJson`: JSON array of attachment objects
+- `checklistJson`: JSON array of checklist item objects
+- `categoryDescriptionsJson`: JSON object mapping Planner category keys to labels
+- `dueDateTimeText`: Free-text due date/time, ideally ISO 8601
+- `startDateTimeText`: Free-text start date/time, ideally ISO 8601
+- `priorityText`: `urgent`, `important`, `medium`, or `low`
+- `scopeText`: `my` or `group`
+- `filterByText`: `plan` or `bucket`
+- `contentTypeText`: `text` or `html`
+
+Examples:
+
+```json
+{
+  "attachmentsJson": "[{\"url\":\"https://contoso.sharepoint.com/sites/team/spec.docx\",\"alias\":\"Implementation spec\",\"type\":\"Word\"}]",
+  "checklistJson": "[{\"title\":\"Review draft\",\"isChecked\":false},{\"title\":\"Share update\",\"isChecked\":true}]",
+  "categoryDescriptionsJson": "{\"category1\":\"Backlog\",\"category2\":\"Blocked\",\"category3\":\"Ready\"}"
+}
+```
+
+```json
+{
+  "dueDateTimeText": "2026-03-08T14:30:00Z",
+  "startDateTimeText": "2026-03-01 09:00",
+  "priorityText": "important",
+  "scopeText": "group",
+  "filterByText": "bucket",
+  "contentTypeText": "text"
+}
+```
 
 ### Creating a Task
 
 To create a task:
+
 1. Enter the **Plan ID** (you can find this in Microsoft Planner URL or via Graph Explorer)
 2. Select a **Bucket** from the dropdown (loads automatically based on the Plan ID)
 3. Enter the **Title** of the task
 
 Optional fields:
+
 - **Description**: Detailed task description
 - **Priority**: Select from dropdown
   - Urgent (highest priority)
   - Important
   - Medium (default)
   - Low
+- **Priority Text (tool mode)**: `urgent`, `important`, `medium`, or `low`
 - **Assigned To**: Comma-separated list of user emails (e.g., `user1@domain.com, user2@domain.com`)
 - **Due Date Time**: When the task should be completed
 - **Start Date Time**: When work on the task should begin
+- **Date Text Fields (tool mode)**: Use `dueDateTimeText` and `startDateTimeText` with ISO-like values such as `2026-03-08T14:30:00Z`
 - **Percent Complete**: Task completion percentage (0-100)
 - **Checklist**: Add multiple checklist items with titles and checked status
 - **Attachments**: Add external references/attachments with URLs, aliases, and types (Word, Excel, etc.)
@@ -163,25 +207,30 @@ Optional fields:
 ### Getting Tasks
 
 **Get a single task:**
+
 - Enter the **Task ID** manually (no dropdown available for single task lookups)
 
 **Get many tasks:**
+
 - Choose filter type: **Plan** or **Bucket**
 - Enter the **Plan ID**
 - If filtering by Bucket: Select bucket from dropdown or enter Bucket ID manually
+- In tool mode, use `filterByText` with `plan` or `bucket`
 - Set a limit or return all tasks
 
 ### Updating a Task
 
 To update a task:
+
 1. Enter the **Task ID** manually
 2. Update any of these fields:
+
 - Title
 - Description
-- Priority (via dropdown)
+- Priority (via dropdown or `priorityText` in tool mode)
 - Assigned users (via email list)
-- **Due Date Time**
-- **Start Date Time**
+- **Due Date Time** or `dueDateTimeText` in tool mode
+- **Start Date Time** or `startDateTimeText` in tool mode
 - **Percent Complete**
 - **Move to different bucket**
 - **Checklist**: Add new items or update existing ones (supports "Replace All" mode)
@@ -191,6 +240,7 @@ To update a task:
 ### Getting Files from a Task
 
 To get all files attached to a task:
+
 1. Enter the **Task ID** manually
 2. The operation returns:
    - **taskId**: The task ID
@@ -206,6 +256,7 @@ To get all files attached to a task:
 ### Creating a Comment
 
 To create a comment on a task:
+
 1. Select **Comment** as the resource
 2. Choose **Create** operation
 3. Enter the **Task ID** manually
@@ -213,12 +264,14 @@ To create a comment on a task:
 5. Optionally select **Content Type**:
    - **Text** (default): Plain text that will be wrapped in HTML
    - **HTML**: Custom HTML content
+   - In tool mode, use `contentTypeText` with `text` or `html`
 
 The comment will be created as a conversation thread in the Microsoft 365 Group associated with the plan. If the task doesn't have a conversation thread yet, one will be created automatically.
 
 ### Getting Comments from a Task
 
 To get all comments from a task:
+
 1. Select **Comment** as the resource
 2. Choose **Get Many** operation
 3. Enter the **Task ID** manually
@@ -242,10 +295,12 @@ The **Plan** resource allows you to manage Microsoft Planner plans:
 - **Get Many**:
   - **My Plans**: Lists plans the authenticated user is a member of.
   - **Group Plans**: Requires a **Group ID** to list plans owned by that specific group.
+  - In tool mode, use `scopeText` with `my` or `group`.
 - **Get**: Retrieve full plan metadata. Enable **Include Details** to get category descriptions (labels) and other metadata.
 - **Update**:
   - Change the plan **Title**.
   - **Category Descriptions**: Update the labels for the 25 color-coded categories (Category 1-25).
+  - In tool mode, prefer `categoryDescriptionsJson`.
   - **Shared With**: Update plan members using a JSON mapping of user IDs.
 - **Delete**: Permanently removes the plan.
 
@@ -264,6 +319,7 @@ The **Bucket** resource manages the columns or categories within a plan:
 You can find your Plan ID in several ways:
 
 1. **From Planner URL**: Open Microsoft Planner in browser, the URL contains the Plan ID:
+
    ```
    https://tasks.office.com/.../ planId=YOUR_PLAN_ID_HERE /...
    ```
@@ -277,6 +333,7 @@ You can find your Plan ID in several ways:
 ### Resource Locator (From List / By ID)
 
 When creating tasks or filtering by bucket:
+
 - **From List**: Select from dropdown (automatically loads based on Plan ID)
 - **By ID**: Manually enter the ID if you already know it
 
@@ -295,11 +352,12 @@ Tested with n8n version 1.0.0 and above.
 ## Version History
 
 ### 1.5.5
+
 - **Bug Fix: $select Duplication**
   - Fixed an issue where the `$select` query parameter was sent twice during pagination, causing "Query option '$select' was specified more than once" error.
 
-
 ### 1.5.4
+
 - **New Feature: $select Support**
   - Added "Select Properties" field to "Get Many" operations for Tasks, Plans, Buckets, and Comments.
 - **Improved Task Assignments**
@@ -307,8 +365,8 @@ Tested with n8n version 1.0.0 and above.
   - Added robust user lookup (ID, Email, UPN) and error reporting for missing users.
   - Added support for Array inputs (expressions) in the "Assigned To" field.
 
-
 ### 1.5.3
+
 - **UI Improvements for Attachments and Checklists**
   - Refactored to use a grouped UI pattern for better usability
   - Replaced separate fields with a unified structure using `fixedCollection`
@@ -317,18 +375,20 @@ Tested with n8n version 1.0.0 and above.
   - Renamed "Mode" to "Input Mode" for better clarity between Manual and JSON inputs
   - Fixed logic for replacing items with matching IDs during updates
 
-
 ### 1.5.2
+
 - **Maintenance release**
 - Removed runtime dependency on `n8n-core` to comply with n8n community node requirements
 - No functional changes to node behavior
 
 ### 1.5.1
+
 - **Maintenance release**
 - Replaced deprecated `requestOAuth2` helper with `httpRequestWithAuthentication` in Microsoft Planner API requests
 - Removed `console` logging from the Microsoft Planner node and helper to satisfy n8n community package scan requirements
 
 ### 1.5.0
+
 - **Initial release under @united-workspace scope**
 - **Added Comment Support**
   - Create and retrieve comments on Planner tasks
@@ -349,43 +409,51 @@ Tested with n8n version 1.0.0 and above.
 - **Internal Improvements**: Comprehensive build audit, improved error handling and data fetch reliability
 
 ### 1.4.0
+
 - **Updated branding**
 - New Planner icon/logo
 - Added About Blickwerk Media section with company info and social links
 
 ### 1.3.9
+
 - **Added Get Files operation**
 - Retrieve all files attached to a task
 - URLs are properly decoded for direct use
 - Returns file metadata including alias, type, and last modified info
 
 ### 1.3.8
+
 - **Fixed priority values**
 - Corrected priority mapping: Urgent (1), Important (3), Medium (5), Low (9)
 - Priority values now match Microsoft Planner API specifications
 
 ### 1.3.7
+
 - **Fixed Update Task response handling**
 - Fetch complete updated task data after PATCH operation
 - Always returns full task object with all current values
 - Fixes empty array and undefined description issues
 
 ### 1.3.6
+
 - **Improved Update Task response**
 - Update Task now returns complete task data including description
 - Better user experience with full task details in response
 
 ### 1.3.5
+
 - **Documentation update**
 - Synced README with npm package (no code changes)
 
 ### 1.3.4
+
 - **Fixed "Empty Payload" error in Update Task**
 - Update Task now works correctly even when no fields are selected
 - Only sends PATCH request when there are actual fields to update
 - Improved error handling for update operations
 
 ### 1.3.3
+
 - **Restructured Get Many Tasks for better UX**
 - Added "Filter By" dropdown to choose between Plan or Bucket filtering
 - Plan ID and Bucket are now separate fields (not in collection)
@@ -394,28 +462,33 @@ Tested with n8n version 1.0.0 and above.
 - Resource Locator UI for buckets with "From List" / "By ID" toggle
 
 ### 1.3.0 - 1.3.2
+
 - Added resource locator UI for Buckets and Tasks
 - Converted from loadOptions to listSearch methods
 - Various fixes for dropdown loading issues
 
 ### 1.2.4
+
 - **Fixed Bucket and Task dropdowns not showing!**
 - Changed field type from 'string' back to 'options' for proper dropdown display
 - Buckets now load correctly when Plan ID is entered
 - Tasks dropdown now works properly
 
 ### 1.2.3
+
 - Improved error handling for Buckets and Tasks loading
 - Better fallback values when data cannot be loaded
 - Added console logging for debugging dropdown issues
 
 ### 1.2.2
+
 - Removed Plan dropdown (Plans cannot be loaded via API)
 - Plan ID is now manual input only
 - Buckets and Tasks still have dynamic dropdowns
 - Simplified and more reliable plan selection
 
 ### 1.2.1
+
 - Fixed Plans not loading (improved API endpoint to fetch from groups)
 - Allow manual ID input in all dropdown fields
 - You can now choose from dropdown OR paste IDs manually
@@ -423,6 +496,7 @@ Tested with n8n version 1.0.0 and above.
 - Improved error handling for plans loading
 
 ### 1.2.0
+
 - **Major UX Improvement**: Added dynamic dropdowns for Plans, Buckets, and Tasks
 - No more manual ID lookup - select from dropdown menus
 - Plans load automatically from your Microsoft 365 account
@@ -431,21 +505,25 @@ Tested with n8n version 1.0.0 and above.
 - Improved user experience with clearer field labels
 
 ### 1.1.1
+
 - Fixed startDateTime not being set (was returning null)
 - Fixed user assignment by adding User.Read.All permission requirement
 - Added error logging for failed user lookups
 - Improved README documentation with all required permissions
 
 ### 1.1.0
+
 - Added priority dropdown (Urgent, Important, Medium, Low) instead of number input
 - Added user assignment functionality (assign tasks by email)
 - Improved user experience with better field descriptions
 
 ### 1.0.1
+
 - Fixed DateTime format handling (automatic conversion to ISO 8601)
 - Improved error handling for invalid date formats
 
 ### 1.0.0
+
 - Initial release
 - Support for creating and retrieving Planner tasks
 - OAuth2 authentication
@@ -461,7 +539,7 @@ Managed by **United Workspace GmbH**
 
 ## Credits
 
-This node was originally developed by [**Blickwerk Media UG**](https://github.com/blickwerk/n8n-nodes-microsoft-planner). We are grateful for their excellent work and contributions to the n8n community. 
+This node was originally developed by [**Blickwerk Media UG**](https://github.com/blickwerk/n8n-nodes-microsoft-planner). We are grateful for their excellent work and contributions to the n8n community.
 
 This version is a fork managed and actively developed by **United Workspace GmbH** to ensure continued support and new features for the n8n community.
 

@@ -22,6 +22,12 @@ export const bucketOperations: INodeProperties[] = [
 				action: 'Create a bucket',
 			},
 			{
+				name: 'Delete',
+				value: 'delete',
+				description: 'Delete a bucket',
+				action: 'Delete a bucket',
+			},
+			{
 				name: 'Get',
 				value: 'get',
 				description: 'Get a bucket',
@@ -38,12 +44,6 @@ export const bucketOperations: INodeProperties[] = [
 				value: 'update',
 				description: 'Update a bucket',
 				action: 'Update a bucket',
-			},
-			{
-				name: 'Delete',
-				value: 'delete',
-				description: 'Delete a bucket',
-				action: 'Delete a bucket',
 			},
 		],
 		default: 'getAll',
@@ -116,13 +116,13 @@ export const bucketFields: INodeProperties[] = [
 			},
 		},
 		options: [
-			{
-				displayName: 'Select Properties',
-				name: 'select',
-				type: 'string',
-				default: '',
-				description: 'Comma-separated list of properties to specify which fields to return (e.g. id,name)',
-			},
+				{
+					displayName: 'Select Properties',
+					name: 'select',
+					type: 'string',
+					default: '',
+					description: 'Comma-separated list of properties to specify which fields to return (e.g. ID,name)',
+				},
 		],
 	},
 

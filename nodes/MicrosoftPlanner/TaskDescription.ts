@@ -1,1079 +1,1260 @@
-import { INodeProperties } from 'n8n-workflow';
+import { INodeProperties } from "n8n-workflow";
 
 // ----------------------------------
 //         Task operations
 // ----------------------------------
 export const taskOperations: INodeProperties[] = [
-	{
-		displayName: 'Operation',
-		name: 'operation',
-		type: 'options',
-		noDataExpression: true,
-		displayOptions: {
-			show: {
-				resource: ['task'],
-			},
-		},
-		options: [
-			{
-				name: 'Create',
-				value: 'create',
-				description: 'Create a new task',
-				action: 'Create a task',
-			},
-			{
-				name: 'Get',
-				value: 'get',
-				description: 'Get a task',
-				action: 'Get a task',
-			},
-			{
-				name: 'Get Many',
-				value: 'getAll',
-				description: 'Get many tasks',
-				action: 'Get many tasks',
-			},
-			{
-				name: 'Update',
-				value: 'update',
-				description: 'Update a task',
-				action: 'Update a task',
-			},
-			{
-				name: 'Delete',
-				value: 'delete',
-				description: 'Delete a task',
-				action: 'Delete a task',
-			},
-			{
-				name: 'Get Files',
-				value: 'getFiles',
-				description: 'Get files attached to a task',
-				action: 'Get files from a task',
-			},
-		],
-		default: 'create',
-	},
+  {
+    displayName: "Operation",
+    name: "operation",
+    type: "options",
+    noDataExpression: true,
+    displayOptions: {
+      show: {
+        resource: ["task"],
+      },
+    },
+    // Keep the operation order aligned with the existing n8n UI.
+    // eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
+    // Keep the field order optimized for human use in the standard UI.
+    // eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
+    options: [
+      {
+        name: "Create",
+        value: "create",
+        description: "Create a new task",
+        action: "Create a task",
+      },
+      {
+        name: "Delete",
+        value: "delete",
+        description: "Delete a task",
+        action: "Delete a task",
+      },
+      {
+        name: "Get",
+        value: "get",
+        description: "Get a task",
+        action: "Get a task",
+      },
+      {
+        name: "Get Files",
+        value: "getFiles",
+        description: "Get files attached to a task",
+        action: "Get files from a task",
+      },
+      {
+        name: "Get Many",
+        value: "getAll",
+        description: "Get many tasks",
+        action: "Get many tasks",
+      },
+      {
+        name: "Update",
+        value: "update",
+        description: "Update a task",
+        action: "Update a task",
+      },
+    ],
+    default: "create",
+  },
 ];
 
 // ----------------------------------
 //         Task fields
 // ----------------------------------
 export const taskFields: INodeProperties[] = [
-	// ----------------------------------
-	//         task:create
-	// ----------------------------------
-	{
-		displayName: 'Plan ID',
-		name: 'planId',
-		type: 'string',
-		required: true,
-		displayOptions: {
-			show: {
-				resource: ['task'],
-				operation: ['create'],
-			},
-		},
-		default: '',
-		description: 'The ID of the plan to which the task belongs',
-		placeholder: 'Enter Plan ID',
-	},
-	{
-		displayName: 'Bucket',
-		name: 'bucketId',
-		type: 'resourceLocator',
-		default: { mode: 'list', value: '' },
-		required: true,
-		displayOptions: {
-			show: {
-				'@tool': [false],
-				resource: ['task'],
-				operation: ['create'],
-			},
-		},
-		modes: [
-			{
-				displayName: 'From List',
-				name: 'list',
-				type: 'list',
-				typeOptions: {
-					searchListMethod: 'getBuckets',
-					searchable: true,
-				},
-			},
-			{
-				displayName: 'By ID',
-				name: 'id',
-				type: 'string',
-				placeholder: 'e.g. FTmIDbes6UyAjh1k0suR3JgACHty',
-			},
-		],
-		description: 'The bucket to which the task belongs',
-	},
-	{
-		displayName: 'Bucket ID',
-		name: 'bucketId',
-		type: 'string',
-		required: true,
-		displayOptions: {
-			show: {
-				'@tool': [true],
-				resource: ['task'],
-				operation: ['create'],
-			},
-		},
-		default: '',
-		description: 'The ID of the bucket to create the task in',
-		placeholder: 'e.g. FTmIDbes6UyAjh1k0suR3JgACHty',
-	},
-	{
-		displayName: 'Title',
-		name: 'title',
-		type: 'string',
-		required: true,
-		displayOptions: {
-			show: {
-				resource: ['task'],
-				operation: ['create'],
-			},
-		},
-		default: '',
-		description: 'Title of the task',
-	},
-	{
-		displayName: 'Additional Fields',
-		name: 'additionalFields',
-		type: 'collection',
-		placeholder: 'Add Field',
-		default: {},
-		displayOptions: {
-			show: {
-				resource: ['task'],
-				operation: ['create'],
-			},
-		},
-		options: [
-			{
-				displayName: 'Assigned To (User IDs)',
-				name: 'assignments',
-				type: 'string',
-				default: '',
-				placeholder: 'user1@domain.com, user2@domain.com',
-				description: 'Comma-separated list of user emails or IDs to assign the task to',
-			},
-			{
-				displayName: 'Description',
-				name: 'description',
-				type: 'string',
-				typeOptions: {
-					rows: 5,
-				},
-				default: '',
-				description: 'Description of the task',
-			},
-			{
-				displayName: 'Due Date Time',
-				name: 'dueDateTime',
-				type: 'dateTime',
-				default: '',
-				description: 'Due date and time for the task',
-			},
-			{
-				displayName: 'Percent Complete',
-				name: 'percentComplete',
-				type: 'number',
-				default: 0,
-				description: 'Percentage of task completion (0-100)',
-			},
-			{
-				displayName: 'Priority',
-				name: 'priority',
-				type: 'options',
-				options: [
-					{
-						name: 'Urgent',
-						value: 1,
-					},
-					{
-						name: 'Important',
-						value: 3,
-					},
-					{
-						name: 'Medium',
-						value: 5,
-					},
-					{
-						name: 'Low',
-						value: 9,
-					},
-				],
-				default: 5,
-				description: 'Priority of the task',
-			},
-			{
-				displayName: 'Start Date Time',
-				name: 'startDateTime',
-				type: 'dateTime',
-				default: '',
-				description: 'Start date and time for the task',
-			},
-			{
-				displayName: 'Attachments',
-				name: 'attachmentsUi',
-				placeholder: 'Add Attachments',
-				type: 'fixedCollection',
-				displayOptions: {
-					show: {
-						'@tool': [false],
-					},
-				},
-				typeOptions: {
-					multipleValues: false,
-				},
-				default: {
-					attachments: {},
-				},
-				options: [
-					{
-						displayName: 'Attachments',
-						name: 'attachments',
-						values: [
-							{
-								displayName: 'Input Mode',
-								name: 'mode',
-								type: 'options',
-								options: [
-									{
-										name: 'Manual',
-										value: 'manual',
-									},
-									{
-										name: 'JSON',
-										value: 'json',
-									},
-								],
-								default: 'manual',
-								description: 'Choose how to provide attachments',
-							},
-							{
-								displayName: 'Items',
-								name: 'items',
-								type: 'fixedCollection',
-								default: {},
-								placeholder: 'Add Attachment',
-								displayOptions: {
-									show: {
-										mode: ['manual'],
-									},
-								},
-								typeOptions: {
-									multipleValues: true,
-								},
-								options: [
-									{
-										name: 'reference',
-										displayName: 'Attachment',
-										values: [
-											{
-												displayName: 'URL',
-												name: 'url',
-												type: 'string',
-												default: '',
-												required: true,
-												description: 'The URL of the attachment',
-											},
-											{
-												displayName: 'Alias',
-												name: 'alias',
-												type: 'string',
-												default: '',
-												description: 'A friendly name for the attachment',
-											},
-											{
-												displayName: 'Type',
-												name: 'type',
-												type: 'options',
-												options: [
-													{
-														name: 'Excel',
-														value: 'Excel',
-													},
-													{
-														name: 'Other',
-														value: 'Other',
-													},
-													{
-														name: 'PowerPoint',
-														value: 'PowerPoint',
-													},
-													{
-														name: 'Word',
-														value: 'Word',
-													},
-												],
-												default: 'Other',
-											},
-										],
-									},
-								],
-							},
-							{
-								displayName: 'JSON',
-								name: 'json',
-								type: 'string',
-								default: '',
-								placeholder: '[{"url": "https://example.com", "alias": "Example", "type": "Other"}]',
-								displayOptions: {
-									show: {
-										mode: ['json'],
-									},
-								},
-								description: 'Add attachments as a JSON array of objects with url, alias (optional), and type (optional) keys',
-							},
-						],
-					},
-				],
-				description: 'Add attachments to the task',
-			},
-			{
-				displayName: 'Attachments JSON',
-				name: 'attachmentsJson',
-				type: 'string',
-				typeOptions: {
-					rows: 4,
-				},
-				default: '',
-				displayOptions: {
-					show: {
-						'@tool': [true],
-					},
-				},
-				placeholder: '[{"url":"https://example.com/file.docx","alias":"Spec","type":"Word"}]',
-				description: 'JSON array of attachments with url and optional alias and type fields',
-			},
-			{
-				displayName: 'Checklist',
-				name: 'checklistUi',
-				placeholder: 'Add Checklist',
-				type: 'fixedCollection',
-				displayOptions: {
-					show: {
-						'@tool': [false],
-					},
-				},
-				typeOptions: {
-					multipleValues: false,
-				},
-				default: {
-					checklist: {},
-				},
-				options: [
-					{
-						displayName: 'Checklist',
-						name: 'checklist',
-						values: [
-							{
-								displayName: 'Input Mode',
-								name: 'mode',
-								type: 'options',
-								options: [
-									{
-										name: 'Manual',
-										value: 'manual',
-									},
-									{
-										name: 'JSON',
-										value: 'json',
-									},
-								],
-								default: 'manual',
-								description: 'Choose how to provide checklist items',
-							},
-							{
-								displayName: 'Items',
-								name: 'items',
-								type: 'fixedCollection',
-								default: {},
-								placeholder: 'Add Checklist Item',
-								displayOptions: {
-									show: {
-										mode: ['manual'],
-									},
-								},
-								typeOptions: {
-									multipleValues: true,
-								},
-								options: [
-									{
-										name: 'item',
-										displayName: 'Checklist Item',
-										values: [
-											{
-												displayName: 'ID',
-												name: 'id',
-												type: 'string',
-												default: '',
-												description: 'ID of the checklist item. Leave empty to generate a new ID.',
-											},
-											{
-												displayName: 'Title',
-												name: 'title',
-												type: 'string',
-												default: '',
-												required: true,
-												description: 'The title of the checklist item',
-											},
-											{
-												displayName: 'Is Checked',
-												name: 'isChecked',
-												type: 'boolean',
-												default: false,
-												description: 'Whether the item is checked',
-											},
-										],
-									},
-								],
-							},
-							{
-								displayName: 'JSON',
-								name: 'json',
-								type: 'string',
-								default: '',
-								placeholder: '[{"title": "My Item", "isChecked": false}]',
-								displayOptions: {
-									show: {
-										mode: ['json'],
-									},
-								},
-								description: 'Add checklist items as a JSON array of objects with title and isChecked (optional) keys',
-							},
-						],
-					},
-				],
-				description: 'Add checklist items to the task',
-			},
-			{
-				displayName: 'Checklist JSON',
-				name: 'checklistJson',
-				type: 'string',
-				typeOptions: {
-					rows: 4,
-				},
-				default: '',
-				displayOptions: {
-					show: {
-						'@tool': [true],
-					},
-				},
-				placeholder: '[{"title":"Review draft","isChecked":false}]',
-				description: 'JSON array of checklist items with title and optional isChecked and id fields',
-			},
-		],
-	},
+  // ----------------------------------
+  //         task:create
+  // ----------------------------------
+  {
+    displayName: "Plan ID",
+    name: "planId",
+    type: "string",
+    required: true,
+    displayOptions: {
+      show: {
+        resource: ["task"],
+        operation: ["create"],
+      },
+    },
+    default: "",
+    description: "The ID of the plan to which the task belongs",
+    placeholder: "Enter Plan ID",
+  },
+  {
+    displayName: "Bucket",
+    name: "bucketId",
+    type: "resourceLocator",
+    default: { mode: "list", value: "" },
+    required: true,
+    displayOptions: {
+      show: {
+        "@tool": [false],
+        resource: ["task"],
+        operation: ["create"],
+      },
+    },
+    modes: [
+      {
+        displayName: "From List",
+        name: "list",
+        type: "list",
+        typeOptions: {
+          searchListMethod: "getBuckets",
+          searchable: true,
+        },
+      },
+      {
+        displayName: "By ID",
+        name: "id",
+        type: "string",
+        placeholder: "e.g. FTmIDbes6UyAjh1k0suR3JgACHty",
+      },
+    ],
+    description: "The bucket to which the task belongs",
+  },
+  {
+    displayName: "Bucket ID",
+    name: "bucketId",
+    type: "string",
+    required: true,
+    displayOptions: {
+      show: {
+        "@tool": [true],
+        resource: ["task"],
+        operation: ["create"],
+      },
+    },
+    default: "",
+    description: "The ID of the bucket to create the task in",
+    placeholder: "e.g. FTmIDbes6UyAjh1k0suR3JgACHty",
+  },
+  {
+    displayName: "Title",
+    name: "title",
+    type: "string",
+    required: true,
+    displayOptions: {
+      show: {
+        resource: ["task"],
+        operation: ["create"],
+      },
+    },
+    default: "",
+    description: "Title of the task",
+  },
+  {
+    displayName: "Additional Fields",
+    name: "additionalFields",
+    type: "collection",
+    placeholder: "Add Field",
+    default: {},
+    displayOptions: {
+      show: {
+        resource: ["task"],
+        operation: ["create"],
+      },
+    },
+    // Keep the field order optimized for human use in the standard UI.
+    // eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
+    options: [
+      {
+        displayName: "Assigned To (User IDs)",
+        name: "assignments",
+        type: "string",
+        default: "",
+        placeholder: "alex@contoso.com, jordan@contoso.com",
+        description:
+          "Comma-separated list of user email addresses or Microsoft user IDs to assign to the task",
+      },
+      {
+        displayName: "Description",
+        name: "description",
+        type: "string",
+        typeOptions: {
+          rows: 5,
+        },
+        default: "",
+        description: "Description of the task",
+      },
+      {
+        displayName: "Due Date Time",
+        name: "dueDateTime",
+        type: "dateTime",
+        default: "",
+        displayOptions: {
+          show: {
+            "@tool": [false],
+          },
+        },
+        description: "Due date and time for the task",
+      },
+      {
+        displayName: "Due Date Time Text",
+        name: "dueDateTimeText",
+        type: "string",
+        default: "",
+        displayOptions: {
+          show: {
+            "@tool": [true],
+          },
+        },
+        placeholder: "2026-03-08T14:30:00Z",
+        description:
+          "Date/time text for when the task is due. Use ISO 8601 when possible, for example 2026-03-08T14:30:00Z.",
+      },
+      {
+        displayName: "Percent Complete",
+        name: "percentComplete",
+        type: "number",
+        default: 0,
+        description: "Percentage of task completion (0-100)",
+      },
+      {
+        displayName: "Priority",
+        name: "priority",
+        type: "options",
+        displayOptions: {
+          show: {
+            "@tool": [false],
+          },
+        },
+        options: [
+          {
+            name: "Urgent",
+            value: 1,
+          },
+          {
+            name: "Important",
+            value: 3,
+          },
+          {
+            name: "Medium",
+            value: 5,
+          },
+          {
+            name: "Low",
+            value: 9,
+          },
+        ],
+        default: 5,
+        description: "Priority of the task",
+      },
+      {
+        displayName: "Priority Text",
+        name: "priorityText",
+        type: "string",
+        default: "",
+        displayOptions: {
+          show: {
+            "@tool": [true],
+          },
+        },
+        placeholder: "urgent",
+        description:
+          "Priority text for the task. Supported values: urgent, important, medium, or low.",
+      },
+      {
+        displayName: "Start Date Time",
+        name: "startDateTime",
+        type: "dateTime",
+        default: "",
+        displayOptions: {
+          show: {
+            "@tool": [false],
+          },
+        },
+        description: "Start date and time for the task",
+      },
+      {
+        displayName: "Start Date Time Text",
+        name: "startDateTimeText",
+        type: "string",
+        default: "",
+        displayOptions: {
+          show: {
+            "@tool": [true],
+          },
+        },
+        placeholder: "2026-03-01 09:00",
+        description:
+          "Date/time text for when work on the task should start. ISO 8601 works best, for example 2026-03-01T09:00:00Z.",
+      },
+      {
+        displayName: "Attachments",
+        name: "attachmentsUi",
+        placeholder: "Add Attachments",
+        type: "fixedCollection",
+        displayOptions: {
+          show: {
+            "@tool": [false],
+          },
+        },
+        typeOptions: {
+          multipleValues: false,
+        },
+        default: {
+          attachments: {},
+        },
+        options: [
+          {
+            displayName: "Attachments",
+            name: "attachments",
+            values: [
+              {
+                displayName: "Input Mode",
+                name: "mode",
+                type: "options",
+                options: [
+                  {
+                    name: "Manual",
+                    value: "manual",
+                  },
+                  {
+                    name: "JSON",
+                    value: "json",
+                  },
+                ],
+                default: "manual",
+                description: "Choose how to provide attachments",
+              },
+              {
+                displayName: "Items",
+                name: "items",
+                type: "fixedCollection",
+                default: {},
+                placeholder: "Add Attachment",
+                displayOptions: {
+                  show: {
+                    mode: ["manual"],
+                  },
+                },
+                typeOptions: {
+                  multipleValues: true,
+                },
+                options: [
+                  {
+                    name: "reference",
+                    displayName: "Attachment",
+                    values: [
+                      {
+                        displayName: "URL",
+                        name: "url",
+                        type: "string",
+                        default: "",
+                        required: true,
+                        description: "The URL of the attachment",
+                      },
+                      {
+                        displayName: "Alias",
+                        name: "alias",
+                        type: "string",
+                        default: "",
+                        description: "A friendly name for the attachment",
+                      },
+                      {
+                        displayName: "Type",
+                        name: "type",
+                        type: "options",
+                        options: [
+                          {
+                            name: "Excel",
+                            value: "Excel",
+                          },
+                          {
+                            name: "Other",
+                            value: "Other",
+                          },
+                          {
+                            name: "PowerPoint",
+                            value: "PowerPoint",
+                          },
+                          {
+                            name: "Word",
+                            value: "Word",
+                          },
+                        ],
+                        default: "Other",
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                displayName: "JSON",
+                name: "json",
+                type: "string",
+                default: "",
+                placeholder:
+                  '[{"url": "https://example.com", "alias": "Example", "type": "Other"}]',
+                displayOptions: {
+                  show: {
+                    mode: ["json"],
+                  },
+                },
+                description:
+                  "Add attachments as a JSON array of objects with URL, alias (optional), and type (optional) keys",
+              },
+            ],
+          },
+        ],
+        description: "Add attachments to the task",
+      },
+      {
+        displayName: "Attachments JSON",
+        name: "attachmentsJson",
+        type: "string",
+        typeOptions: {
+          rows: 4,
+        },
+        default: "",
+        displayOptions: {
+          show: {
+            "@tool": [true],
+          },
+        },
+        placeholder:
+          '[{"url":"https://contoso.sharepoint.com/sites/team/spec.docx","alias":"Implementation spec","type":"Word"}]',
+        description:
+          "JSON array of attachment objects. Each object must include URL and may include alias and type.",
+      },
+      {
+        displayName: "Checklist",
+        name: "checklistUi",
+        placeholder: "Add Checklist",
+        type: "fixedCollection",
+        displayOptions: {
+          show: {
+            "@tool": [false],
+          },
+        },
+        typeOptions: {
+          multipleValues: false,
+        },
+        default: {
+          checklist: {},
+        },
+        options: [
+          {
+            displayName: "Checklist",
+            name: "checklist",
+            values: [
+              {
+                displayName: "Input Mode",
+                name: "mode",
+                type: "options",
+                options: [
+                  {
+                    name: "Manual",
+                    value: "manual",
+                  },
+                  {
+                    name: "JSON",
+                    value: "json",
+                  },
+                ],
+                default: "manual",
+                description: "Choose how to provide checklist items",
+              },
+              {
+                displayName: "Items",
+                name: "items",
+                type: "fixedCollection",
+                default: {},
+                placeholder: "Add Checklist Item",
+                displayOptions: {
+                  show: {
+                    mode: ["manual"],
+                  },
+                },
+                typeOptions: {
+                  multipleValues: true,
+                },
+                options: [
+                  {
+                    name: "item",
+                    displayName: "Checklist Item",
+                    values: [
+                      {
+                        displayName: "ID",
+                        name: "id",
+                        type: "string",
+                        default: "",
+                        description:
+                          "ID of the checklist item. Leave empty to generate a new ID.",
+                      },
+                      {
+                        displayName: "Title",
+                        name: "title",
+                        type: "string",
+                        default: "",
+                        required: true,
+                        description: "The title of the checklist item",
+                      },
+                      {
+                        displayName: "Is Checked",
+                        name: "isChecked",
+                        type: "boolean",
+                        default: false,
+                        description: "Whether the item is checked",
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                displayName: "JSON",
+                name: "json",
+                type: "string",
+                default: "",
+                placeholder: '[{"title": "My Item", "isChecked": false}]',
+                displayOptions: {
+                  show: {
+                    mode: ["json"],
+                  },
+                },
+                description:
+                  "Add checklist items as a JSON array of objects with title and isChecked (optional) keys",
+              },
+            ],
+          },
+        ],
+        description: "Add checklist items to the task",
+      },
+      {
+        displayName: "Checklist JSON",
+        name: "checklistJson",
+        type: "string",
+        typeOptions: {
+          rows: 4,
+        },
+        default: "",
+        displayOptions: {
+          show: {
+            "@tool": [true],
+          },
+        },
+        placeholder:
+          '[{"title":"Review draft","isChecked":false},{"title":"Share update","isChecked":true}]',
+        description:
+          "JSON array of checklist item objects. Each object must include title and may include isChecked and ID.",
+      },
+    ],
+  },
 
-	// ----------------------------------
-	{
-		displayName: 'Task',
-		name: 'taskId',
-		type: 'resourceLocator',
-		default: { mode: 'id', value: '' },
-		required: true,
-		displayOptions: {
-			show: {
-				'@tool': [false],
-				resource: ['task'],
-				operation: ['get', 'delete', 'update'],
-			},
-		},
-		modes: [
-			{
-				displayName: 'By ID',
-				name: 'id',
-				type: 'string',
-				placeholder: 'e.g. rz1EH6N_a0aLpRm-2QifxZgAF5OL',
-			},
-		],
-		description: 'The task to operate on',
-	},
-	{
-		displayName: 'Task ID',
-		name: 'taskId',
-		type: 'string',
-		default: '',
-		required: true,
-		displayOptions: {
-			show: {
-				'@tool': [true],
-				resource: ['task'],
-				operation: ['get', 'delete', 'update'],
-			},
-		},
-		description: 'The ID of the task to retrieve, update, or delete',
-		placeholder: 'e.g. rz1EH6N_a0aLpRm-2QifxZgAF5OL',
-	},
-	{
-		displayName: 'Additional Fields',
-		name: 'additionalFields',
-		type: 'collection',
-		placeholder: 'Add Field',
-		default: {},
-		displayOptions: {
-			show: {
-				resource: ['task'],
-				operation: ['get'],
-			},
-		},
-		options: [
-			{
-				displayName: 'Include Details',
-				name: 'includeDetails',
-				type: 'boolean',
-				default: false,
-				description: 'Whether to include task details (description, checklist, etc.)',
-			},
-		],
-	},
+  // ----------------------------------
+  {
+    displayName: "Task",
+    name: "taskId",
+    type: "resourceLocator",
+    default: { mode: "id", value: "" },
+    required: true,
+    displayOptions: {
+      show: {
+        "@tool": [false],
+        resource: ["task"],
+        operation: ["get", "delete", "update"],
+      },
+    },
+    modes: [
+      {
+        displayName: "By ID",
+        name: "id",
+        type: "string",
+        placeholder: "e.g. rz1EH6N_a0aLpRm-2QifxZgAF5OL",
+      },
+    ],
+    description: "The task to operate on",
+  },
+  {
+    displayName: "Task ID",
+    name: "taskId",
+    type: "string",
+    default: "",
+    required: true,
+    displayOptions: {
+      show: {
+        "@tool": [true],
+        resource: ["task"],
+        operation: ["get", "delete", "update"],
+      },
+    },
+    description: "The Microsoft Planner task ID to retrieve, update, or delete",
+    placeholder: "e.g. rz1EH6N_a0aLpRm-2QifxZgAF5OL",
+  },
+  {
+    displayName: "Additional Fields",
+    name: "additionalFields",
+    type: "collection",
+    placeholder: "Add Field",
+    default: {},
+    displayOptions: {
+      show: {
+        resource: ["task"],
+        operation: ["get"],
+      },
+    },
+    // Keep the field order optimized for human use in the standard UI.
+    // eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
+    options: [
+      {
+        displayName: "Include Details",
+        name: "includeDetails",
+        type: "boolean",
+        default: false,
+        description:
+          "Whether to include task details (description, checklist, etc.)",
+      },
+    ],
+  },
 
-	// ----------------------------------
-	//         task:getAll
-	// ----------------------------------
-	{
-		displayName: 'Filter By',
-		name: 'filterBy',
-		type: 'options',
-		displayOptions: {
-			show: {
-				resource: ['task'],
-				operation: ['getAll'],
-			},
-		},
-		options: [
-			{
-				name: 'Plan',
-				value: 'plan',
-			},
-			{
-				name: 'Bucket',
-				value: 'bucket',
-			},
-		],
-		default: 'plan',
-		description: 'Choose whether to filter by Plan or Bucket',
-	},
-	{
-		displayName: 'Plan ID',
-		name: 'planId',
-		type: 'string',
-		displayOptions: {
-			show: {
-				resource: ['task'],
-				operation: ['getAll'],
-				filterBy: ['plan', 'bucket'],
-			},
-		},
-		default: '',
-		required: true,
-		description: 'The Plan ID to filter tasks',
-		placeholder: 'Enter Plan ID',
-	},
-	{
-		displayName: 'Bucket',
-		name: 'bucketId',
-		type: 'resourceLocator',
-		displayOptions: {
-			show: {
-				'@tool': [false],
-				resource: ['task'],
-				operation: ['getAll'],
-				filterBy: ['bucket'],
-			},
-		},
-		default: { mode: 'list', value: '' },
-		required: true,
-		description: 'The Bucket to filter tasks',
-		modes: [
-			{
-				displayName: 'From List',
-				name: 'list',
-				type: 'list',
-				typeOptions: {
-					searchListMethod: 'getBuckets',
-					searchable: true,
-				},
-			},
-			{
-				displayName: 'By ID',
-				name: 'id',
-				type: 'string',
-				placeholder: 'e.g. FTmIDbes6UyAjh1k0suR3JgACHty',
-			},
-		],
-	},
-	{
-		displayName: 'Bucket ID',
-		name: 'bucketId',
-		type: 'string',
-		displayOptions: {
-			show: {
-				'@tool': [true],
-				resource: ['task'],
-				operation: ['getAll'],
-				filterBy: ['bucket'],
-			},
-		},
-		default: '',
-		required: true,
-		description: 'The ID of the bucket to filter tasks by',
-		placeholder: 'e.g. FTmIDbes6UyAjh1k0suR3JgACHty',
-	},
-	{
-		displayName: 'Additional Fields',
-		name: 'additionalFields',
-		type: 'collection',
-		placeholder: 'Add Field',
-		default: {},
-		displayOptions: {
-			show: {
-				resource: ['task'],
-				operation: ['getAll'],
-			},
-		},
-		options: [
-			{
-				displayName: 'Select Properties',
-				name: 'select',
-				type: 'string',
-				default: '',
-				description: 'Comma-separated list of properties to specify which fields to return (e.g. id,title,percentComplete)',
-			},
-		],
-	},
+  // ----------------------------------
+  //         task:getAll
+  // ----------------------------------
+  {
+    displayName: "Filter By",
+    name: "filterBy",
+    type: "options",
+    displayOptions: {
+      show: {
+        "@tool": [false],
+        resource: ["task"],
+        operation: ["getAll"],
+      },
+    },
+    options: [
+      {
+        name: "Plan",
+        value: "plan",
+      },
+      {
+        name: "Bucket",
+        value: "bucket",
+      },
+    ],
+    default: "plan",
+    description: "Choose whether to filter by Plan or Bucket",
+  },
+  {
+    displayName: "Plan ID",
+    name: "planId",
+    type: "string",
+    displayOptions: {
+      show: {
+        "@tool": [false],
+        resource: ["task"],
+        operation: ["getAll"],
+        filterBy: ["plan", "bucket"],
+      },
+    },
+    default: "",
+    required: true,
+    description:
+      "The Microsoft Planner plan ID used to list tasks or to load bucket options",
+    placeholder: "e.g. xqQg5FS2LkCp935s-FIFm2QAFkHM",
+  },
+  {
+    displayName: "Filter By Text",
+    name: "filterByText",
+    type: "string",
+    displayOptions: {
+      show: {
+        "@tool": [true],
+        resource: ["task"],
+        operation: ["getAll"],
+      },
+    },
+    default: "",
+    description:
+      "How to choose the task list in tool mode. Supported values: plan or bucket.",
+    placeholder: "bucket",
+  },
+  {
+    displayName: "Plan ID",
+    name: "planId",
+    type: "string",
+    displayOptions: {
+      show: {
+        "@tool": [true],
+        resource: ["task"],
+        operation: ["getAll"],
+      },
+    },
+    default: "",
+    description:
+      "Plan ID to list tasks from. Required when Filter By Text is set to plan; optional when filtering by bucket.",
+    placeholder: "e.g. xqQg5FS2LkCp935s-FIFm2QAFkHM",
+  },
+  {
+    displayName: "Bucket",
+    name: "bucketId",
+    type: "resourceLocator",
+    displayOptions: {
+      show: {
+        "@tool": [false],
+        resource: ["task"],
+        operation: ["getAll"],
+        filterBy: ["bucket"],
+      },
+    },
+    default: { mode: "list", value: "" },
+    required: true,
+    description: "The Bucket to filter tasks",
+    modes: [
+      {
+        displayName: "From List",
+        name: "list",
+        type: "list",
+        typeOptions: {
+          searchListMethod: "getBuckets",
+          searchable: true,
+        },
+      },
+      {
+        displayName: "By ID",
+        name: "id",
+        type: "string",
+        placeholder: "e.g. FTmIDbes6UyAjh1k0suR3JgACHty",
+      },
+    ],
+  },
+  {
+    displayName: "Bucket ID",
+    name: "bucketId",
+    type: "string",
+    displayOptions: {
+      show: {
+        "@tool": [true],
+        resource: ["task"],
+        operation: ["getAll"],
+      },
+    },
+    default: "",
+    description: "Bucket ID to list tasks from when Filter By Text is bucket",
+    placeholder: "e.g. FTmIDbes6UyAjh1k0suR3JgACHty",
+  },
+  {
+    displayName: "Additional Fields",
+    name: "additionalFields",
+    type: "collection",
+    placeholder: "Add Field",
+    default: {},
+    displayOptions: {
+      show: {
+        resource: ["task"],
+        operation: ["getAll"],
+      },
+    },
+    options: [
+      {
+        displayName: "Select Properties",
+        name: "select",
+        type: "string",
+        default: "",
+        description:
+          "Comma-separated list of properties to specify which fields to return (e.g. ID,title,percentComplete)",
+      },
+    ],
+  },
 
-	// ----------------------------------
-	//         task:update
-	// ----------------------------------
-	{
-		displayName: 'Update Fields',
-		name: 'updateFields',
-		type: 'collection',
-		placeholder: 'Add Field',
-		default: {},
-		displayOptions: {
-			show: {
-				resource: ['task'],
-				operation: ['update'],
-			},
-		},
-		options: [
-			{
-				displayName: 'Assigned To (User IDs)',
-				name: 'assignments',
-				type: 'string',
-				default: '',
-				placeholder: 'user1@domain.com, user2@domain.com',
-				description: 'Comma-separated list of user emails or IDs to assign the task to',
-			},
-			{
-				displayName: 'Bucket ID',
-				name: 'bucketId',
-				type: 'string',
-				default: '',
-				description: 'Move task to a different bucket',
-			},
-			{
-				displayName: 'Description',
-				name: 'description',
-				type: 'string',
-				typeOptions: {
-					rows: 5,
-				},
-				default: '',
-				description: 'Description of the task',
-			},
-			{
-				displayName: 'Due Date Time',
-				name: 'dueDateTime',
-				type: 'dateTime',
-				default: '',
-				description: 'Due date and time for the task',
-			},
-			{
-				displayName: 'Percent Complete',
-				name: 'percentComplete',
-				type: 'number',
-				default: 0,
-				description: 'Percentage of task completion (0-100)',
-			},
-			{
-				displayName: 'Priority',
-				name: 'priority',
-				type: 'options',
-				options: [
-					{
-						name: 'Urgent',
-						value: 0,
-					},
-					{
-						name: 'Important',
-						value: 1,
-					},
-					{
-						name: 'Medium',
-						value: 5,
-					},
-					{
-						name: 'Low',
-						value: 9,
-					},
-				],
-				default: 5,
-				description: 'Priority of the task',
-			},
-			{
-				displayName: 'Start Date Time',
-				name: 'startDateTime',
-				type: 'dateTime',
-				default: '',
-				description: 'Start date and time for the task',
-			},
-			{
-				displayName: 'Title',
-				name: 'title',
-				type: 'string',
-				default: '',
-				description: 'Title of the task',
-			},
-			{
-				displayName: 'Attachments',
-				name: 'attachmentsUi',
-				placeholder: 'Add Attachments',
-				type: 'fixedCollection',
-				displayOptions: {
-					show: {
-						'@tool': [false],
-					},
-				},
-				typeOptions: {
-					multipleValues: false,
-				},
-				default: {
-					attachments: {},
-				},
-				options: [
-					{
-						displayName: 'Attachments',
-						name: 'attachments',
-						values: [
-							{
-								displayName: 'Input Mode',
-								name: 'mode',
-								type: 'options',
-								options: [
-									{
-										name: 'Manual',
-										value: 'manual',
-									},
-									{
-										name: 'JSON',
-										value: 'json',
-									},
-								],
-								default: 'manual',
-								description: 'Choose how to provide attachments',
-							},
-							{
-								displayName: 'Items',
-								name: 'items',
-								type: 'fixedCollection',
-								default: {},
-								placeholder: 'Add Attachment',
-								displayOptions: {
-									show: {
-										mode: ['manual'],
-									},
-								},
-								typeOptions: {
-									multipleValues: true,
-								},
-								options: [
-									{
-										name: 'reference',
-										displayName: 'Attachment',
-										values: [
-											{
-												displayName: 'URL',
-												name: 'url',
-												type: 'string',
-												default: '',
-												required: true,
-												description: 'The URL of the attachment',
-											},
-											{
-												displayName: 'Alias',
-												name: 'alias',
-												type: 'string',
-												default: '',
-												description: 'A friendly name for the attachment',
-											},
-											{
-												displayName: 'Type',
-												name: 'type',
-												type: 'options',
-												options: [
-													{
-														name: 'Excel',
-														value: 'Excel',
-													},
-													{
-														name: 'Other',
-														value: 'Other',
-													},
-													{
-														name: 'PowerPoint',
-														value: 'PowerPoint',
-													},
-													{
-														name: 'Word',
-														value: 'Word',
-													},
-												],
-												default: 'Other',
-											},
-										],
-									},
-								],
-							},
-							{
-								displayName: 'JSON',
-								name: 'json',
-								type: 'string',
-								default: '',
-								placeholder: '[{"url": "https://example.com", "alias": "Example", "type": "Other"}]',
-								displayOptions: {
-									show: {
-										mode: ['json'],
-									},
-								},
-								description: 'Add attachments as a JSON array of objects with url, alias (optional), and type (optional) keys',
-							},
-							{
-								displayName: 'Operation Mode',
-								name: 'operationMode',
-								type: 'options',
-								options: [
-									{
-										name: 'Append',
-										value: 'append',
-										description: 'Appends the new given attachment items to the existing ones, potentially updating existing ones with matching ids',
-									},
-									{
-										name: 'Replace',
-										value: 'replace',
-										description: 'Sets the given attachment items and replaces potentially existing ones',
-									},
-								],
-								default: 'append',
-								description: 'Choose how to update the attachments',
-							},
-						],
-					},
-				],
-				description: 'Add attachments to the task',
-			},
-			{
-				displayName: 'Attachments JSON',
-				name: 'attachmentsJson',
-				type: 'string',
-				typeOptions: {
-					rows: 4,
-				},
-				default: '',
-				displayOptions: {
-					show: {
-						'@tool': [true],
-					},
-				},
-				placeholder: '[{"url":"https://example.com/file.docx","alias":"Spec","type":"Word"}]',
-				description: 'JSON array of attachments with url and optional alias and type fields',
-			},
-			{
-				displayName: 'Checklist',
-				name: 'checklistUi',
-				placeholder: 'Add Checklist',
-				type: 'fixedCollection',
-				displayOptions: {
-					show: {
-						'@tool': [false],
-					},
-				},
-				typeOptions: {
-					multipleValues: false,
-				},
-				default: {
-					checklist: {},
-				},
-				options: [
-					{
-						displayName: 'Checklist',
-						name: 'checklist',
-						values: [
-							{
-								displayName: 'Input Mode',
-								name: 'mode',
-								type: 'options',
-								options: [
-									{
-										name: 'Manual',
-										value: 'manual',
-									},
-									{
-										name: 'JSON',
-										value: 'json',
-									},
-								],
-								default: 'manual',
-								description: 'Choose how to provide checklist items',
-							},
-							{
-								displayName: 'Items',
-								name: 'items',
-								type: 'fixedCollection',
-								default: {},
-								placeholder: 'Add Checklist Item',
-								displayOptions: {
-									show: {
-										mode: ['manual'],
-									},
-								},
-								typeOptions: {
-									multipleValues: true,
-								},
-								options: [
-									{
-										name: 'item',
-										displayName: 'Checklist Item',
-										values: [
-											{
-												displayName: 'ID',
-												name: 'id',
-												type: 'string',
-												default: '',
-												description: 'ID of the checklist item. Leave empty to generate a new ID.',
-											},
-											{
-												displayName: 'Title',
-												name: 'title',
-												type: 'string',
-												default: '',
-												required: true,
-												description: 'The title of the checklist item',
-											},
-											{
-												displayName: 'Is Checked',
-												name: 'isChecked',
-												type: 'boolean',
-												default: false,
-												description: 'Whether the item is checked',
-											},
-										],
-									},
-								],
-							},
-							{
-								displayName: 'JSON',
-								name: 'json',
-								type: 'string',
-								default: '',
-								placeholder: '[{"title": "My Item", "isChecked": false}]',
-								displayOptions: {
-									show: {
-										mode: ['json'],
-									},
-								},
-								description: 'Add checklist items as a JSON array of objects with title and isChecked (optional) keys',
-							},
-							{
-								displayName: 'Operation Mode',
-								name: 'operationMode',
-								type: 'options',
-								options: [
-									{
-										name: 'Append',
-										value: 'append',
-										description: 'Appends the new given checklist items to the existing ones, potentially updating existing ones with matching ids',
-									},
-									{
-										name: 'Replace',
-										value: 'replace',
-										description: 'Sets the given checklist items and replaces potentially existing ones',
-									},
-								],
-								default: 'append',
-								description: 'Choose how to update the checklist',
-							},
-						],
-					},
-				],
-				description: 'Add checklist items to the task',
-			},
-			{
-				displayName: 'Checklist JSON',
-				name: 'checklistJson',
-				type: 'string',
-				typeOptions: {
-					rows: 4,
-				},
-				default: '',
-				displayOptions: {
-					show: {
-						'@tool': [true],
-					},
-				},
-				placeholder: '[{"title":"Review draft","isChecked":false}]',
-				description: 'JSON array of checklist items with title and optional isChecked and id fields',
-			},
-		],
-	},
-	// ----------------------------------
-	//         task:getFiles
-	// ----------------------------------
-	{
-		displayName: 'Task',
-		name: 'taskId',
-		type: 'resourceLocator',
-		default: { mode: 'id', value: '' },
-		required: true,
-		displayOptions: {
-			show: {
-				'@tool': [false],
-				resource: ['task'],
-				operation: ['getFiles'],
-			},
-		},
-		modes: [
-			{
-				displayName: 'By ID',
-				name: 'id',
-				type: 'string',
-				placeholder: 'e.g. rz1EH6N_a0aLpRm-2QifxZgAF5OL',
-			},
-		],
-		description: 'The Task ID to get files from',
-	},
-	{
-		displayName: 'Task ID',
-		name: 'taskId',
-		type: 'string',
-		default: '',
-		required: true,
-		displayOptions: {
-			show: {
-				'@tool': [true],
-				resource: ['task'],
-				operation: ['getFiles'],
-			},
-		},
-		description: 'The ID of the task whose attached files should be returned',
-		placeholder: 'e.g. rz1EH6N_a0aLpRm-2QifxZgAF5OL',
-	},
+  // ----------------------------------
+  //         task:update
+  // ----------------------------------
+  {
+    displayName: "Update Fields",
+    name: "updateFields",
+    type: "collection",
+    placeholder: "Add Field",
+    default: {},
+    displayOptions: {
+      show: {
+        resource: ["task"],
+        operation: ["update"],
+      },
+    },
+    // Keep the field order optimized for human use in the standard UI.
+    // eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
+    options: [
+      {
+        displayName: "Assigned To (User IDs)",
+        name: "assignments",
+        type: "string",
+        default: "",
+        placeholder: "alex@contoso.com, jordan@contoso.com",
+        description:
+          "Comma-separated list of user email addresses or Microsoft user IDs to assign to the task",
+      },
+      {
+        displayName: "Bucket ID",
+        name: "bucketId",
+        type: "string",
+        default: "",
+        description: "Move task to a different bucket",
+      },
+      {
+        displayName: "Description",
+        name: "description",
+        type: "string",
+        typeOptions: {
+          rows: 5,
+        },
+        default: "",
+        description: "Description of the task",
+      },
+      {
+        displayName: "Due Date Time",
+        name: "dueDateTime",
+        type: "dateTime",
+        default: "",
+        displayOptions: {
+          show: {
+            "@tool": [false],
+          },
+        },
+        description: "Due date and time for the task",
+      },
+      {
+        displayName: "Due Date Time Text",
+        name: "dueDateTimeText",
+        type: "string",
+        default: "",
+        displayOptions: {
+          show: {
+            "@tool": [true],
+          },
+        },
+        placeholder: "2026-03-08T14:30:00Z",
+        description:
+          "Date/time text for when the task is due. Use ISO 8601 when possible, for example 2026-03-08T14:30:00Z.",
+      },
+      {
+        displayName: "Percent Complete",
+        name: "percentComplete",
+        type: "number",
+        default: 0,
+        description: "Percentage of task completion (0-100)",
+      },
+      {
+        displayName: "Priority",
+        name: "priority",
+        type: "options",
+        displayOptions: {
+          show: {
+            "@tool": [false],
+          },
+        },
+        options: [
+          {
+            name: "Urgent",
+            value: 1,
+          },
+          {
+            name: "Important",
+            value: 3,
+          },
+          {
+            name: "Medium",
+            value: 5,
+          },
+          {
+            name: "Low",
+            value: 9,
+          },
+        ],
+        default: 5,
+        description: "Priority of the task",
+      },
+      {
+        displayName: "Priority Text",
+        name: "priorityText",
+        type: "string",
+        default: "",
+        displayOptions: {
+          show: {
+            "@tool": [true],
+          },
+        },
+        placeholder: "important",
+        description:
+          "Priority text for the task. Supported values: urgent, important, medium, or low.",
+      },
+      {
+        displayName: "Start Date Time",
+        name: "startDateTime",
+        type: "dateTime",
+        default: "",
+        displayOptions: {
+          show: {
+            "@tool": [false],
+          },
+        },
+        description: "Start date and time for the task",
+      },
+      {
+        displayName: "Start Date Time Text",
+        name: "startDateTimeText",
+        type: "string",
+        default: "",
+        displayOptions: {
+          show: {
+            "@tool": [true],
+          },
+        },
+        placeholder: "2026-03-01 09:00",
+        description:
+          "Date/time text for when work on the task should start. ISO 8601 works best, for example 2026-03-01T09:00:00Z.",
+      },
+      {
+        displayName: "Title",
+        name: "title",
+        type: "string",
+        default: "",
+        description: "Title of the task",
+      },
+      {
+        displayName: "Attachments",
+        name: "attachmentsUi",
+        placeholder: "Add Attachments",
+        type: "fixedCollection",
+        displayOptions: {
+          show: {
+            "@tool": [false],
+          },
+        },
+        typeOptions: {
+          multipleValues: false,
+        },
+        default: {
+          attachments: {},
+        },
+        options: [
+          {
+            displayName: "Attachments",
+            name: "attachments",
+            values: [
+              {
+                displayName: "Input Mode",
+                name: "mode",
+                type: "options",
+                options: [
+                  {
+                    name: "Manual",
+                    value: "manual",
+                  },
+                  {
+                    name: "JSON",
+                    value: "json",
+                  },
+                ],
+                default: "manual",
+                description: "Choose how to provide attachments",
+              },
+              {
+                displayName: "Items",
+                name: "items",
+                type: "fixedCollection",
+                default: {},
+                placeholder: "Add Attachment",
+                displayOptions: {
+                  show: {
+                    mode: ["manual"],
+                  },
+                },
+                typeOptions: {
+                  multipleValues: true,
+                },
+                options: [
+                  {
+                    name: "reference",
+                    displayName: "Attachment",
+                    values: [
+                      {
+                        displayName: "URL",
+                        name: "url",
+                        type: "string",
+                        default: "",
+                        required: true,
+                        description: "The URL of the attachment",
+                      },
+                      {
+                        displayName: "Alias",
+                        name: "alias",
+                        type: "string",
+                        default: "",
+                        description: "A friendly name for the attachment",
+                      },
+                      {
+                        displayName: "Type",
+                        name: "type",
+                        type: "options",
+                        options: [
+                          {
+                            name: "Excel",
+                            value: "Excel",
+                          },
+                          {
+                            name: "Other",
+                            value: "Other",
+                          },
+                          {
+                            name: "PowerPoint",
+                            value: "PowerPoint",
+                          },
+                          {
+                            name: "Word",
+                            value: "Word",
+                          },
+                        ],
+                        default: "Other",
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                displayName: "JSON",
+                name: "json",
+                type: "string",
+                default: "",
+                placeholder:
+                  '[{"url": "https://example.com", "alias": "Example", "type": "Other"}]',
+                displayOptions: {
+                  show: {
+                    mode: ["json"],
+                  },
+                },
+                description:
+                  "Add attachments as a JSON array of objects with URL, alias (optional), and type (optional) keys",
+              },
+              {
+                displayName: "Operation Mode",
+                name: "operationMode",
+                type: "options",
+                options: [
+                  {
+                    name: "Append",
+                    value: "append",
+                    description:
+                      "Appends the new given attachment items to the existing ones, potentially updating existing ones with matching IDs",
+                  },
+                  {
+                    name: "Replace",
+                    value: "replace",
+                    description:
+                      "Sets the given attachment items and replaces potentially existing ones",
+                  },
+                ],
+                default: "append",
+                description: "Choose how to update the attachments",
+              },
+            ],
+          },
+        ],
+        description: "Add attachments to the task",
+      },
+      {
+        displayName: "Attachments JSON",
+        name: "attachmentsJson",
+        type: "string",
+        typeOptions: {
+          rows: 4,
+        },
+        default: "",
+        displayOptions: {
+          show: {
+            "@tool": [true],
+          },
+        },
+        placeholder:
+          '[{"url":"https://contoso.sharepoint.com/sites/team/spec.docx","alias":"Implementation spec","type":"Word"}]',
+        description:
+          "JSON array of attachment objects. Each object must include URL and may include alias and type.",
+      },
+      {
+        displayName: "Checklist",
+        name: "checklistUi",
+        placeholder: "Add Checklist",
+        type: "fixedCollection",
+        displayOptions: {
+          show: {
+            "@tool": [false],
+          },
+        },
+        typeOptions: {
+          multipleValues: false,
+        },
+        default: {
+          checklist: {},
+        },
+        options: [
+          {
+            displayName: "Checklist",
+            name: "checklist",
+            values: [
+              {
+                displayName: "Input Mode",
+                name: "mode",
+                type: "options",
+                options: [
+                  {
+                    name: "Manual",
+                    value: "manual",
+                  },
+                  {
+                    name: "JSON",
+                    value: "json",
+                  },
+                ],
+                default: "manual",
+                description: "Choose how to provide checklist items",
+              },
+              {
+                displayName: "Items",
+                name: "items",
+                type: "fixedCollection",
+                default: {},
+                placeholder: "Add Checklist Item",
+                displayOptions: {
+                  show: {
+                    mode: ["manual"],
+                  },
+                },
+                typeOptions: {
+                  multipleValues: true,
+                },
+                options: [
+                  {
+                    name: "item",
+                    displayName: "Checklist Item",
+                    values: [
+                      {
+                        displayName: "ID",
+                        name: "id",
+                        type: "string",
+                        default: "",
+                        description:
+                          "ID of the checklist item. Leave empty to generate a new ID.",
+                      },
+                      {
+                        displayName: "Title",
+                        name: "title",
+                        type: "string",
+                        default: "",
+                        required: true,
+                        description: "The title of the checklist item",
+                      },
+                      {
+                        displayName: "Is Checked",
+                        name: "isChecked",
+                        type: "boolean",
+                        default: false,
+                        description: "Whether the item is checked",
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                displayName: "JSON",
+                name: "json",
+                type: "string",
+                default: "",
+                placeholder: '[{"title": "My Item", "isChecked": false}]',
+                displayOptions: {
+                  show: {
+                    mode: ["json"],
+                  },
+                },
+                description:
+                  "Add checklist items as a JSON array of objects with title and isChecked (optional) keys",
+              },
+              {
+                displayName: "Operation Mode",
+                name: "operationMode",
+                type: "options",
+                options: [
+                  {
+                    name: "Append",
+                    value: "append",
+                    description:
+                      "Appends the new given checklist items to the existing ones, potentially updating existing ones with matching IDs",
+                  },
+                  {
+                    name: "Replace",
+                    value: "replace",
+                    description:
+                      "Sets the given checklist items and replaces potentially existing ones",
+                  },
+                ],
+                default: "append",
+                description: "Choose how to update the checklist",
+              },
+            ],
+          },
+        ],
+        description: "Add checklist items to the task",
+      },
+      {
+        displayName: "Checklist JSON",
+        name: "checklistJson",
+        type: "string",
+        typeOptions: {
+          rows: 4,
+        },
+        default: "",
+        displayOptions: {
+          show: {
+            "@tool": [true],
+          },
+        },
+        placeholder:
+          '[{"title":"Review draft","isChecked":false},{"title":"Share update","isChecked":true}]',
+        description:
+          "JSON array of checklist item objects. Each object must include title and may include isChecked and ID.",
+      },
+    ],
+  },
+  // ----------------------------------
+  //         task:getFiles
+  // ----------------------------------
+  {
+    displayName: "Task",
+    name: "taskId",
+    type: "resourceLocator",
+    default: { mode: "id", value: "" },
+    required: true,
+    displayOptions: {
+      show: {
+        "@tool": [false],
+        resource: ["task"],
+        operation: ["getFiles"],
+      },
+    },
+    modes: [
+      {
+        displayName: "By ID",
+        name: "id",
+        type: "string",
+        placeholder: "e.g. rz1EH6N_a0aLpRm-2QifxZgAF5OL",
+      },
+    ],
+    description: "The Task ID to get files from",
+  },
+  {
+    displayName: "Task ID",
+    name: "taskId",
+    type: "string",
+    default: "",
+    required: true,
+    displayOptions: {
+      show: {
+        "@tool": [true],
+        resource: ["task"],
+        operation: ["getFiles"],
+      },
+    },
+    description: "The ID of the task whose attached files should be returned",
+    placeholder: "e.g. rz1EH6N_a0aLpRm-2QifxZgAF5OL",
+  },
 ];

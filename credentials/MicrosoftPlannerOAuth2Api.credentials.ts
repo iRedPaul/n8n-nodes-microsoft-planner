@@ -29,6 +29,9 @@ export class MicrosoftPlannerOAuth2Api implements ICredentialType {
 			displayName: 'Access Token URL',
 			name: 'accessTokenUrl',
 			type: 'string',
+			typeOptions: {
+				password: true,
+			},
 			default: 'https://login.microsoftonline.com/common/oauth2/v2.0/token',
 			required: true,
 		},
