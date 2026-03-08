@@ -86,6 +86,7 @@ export const taskFields: INodeProperties[] = [
 		required: true,
 		displayOptions: {
 			show: {
+				'@tool': [false],
 				resource: ['task'],
 				operation: ['create'],
 			},
@@ -108,6 +109,22 @@ export const taskFields: INodeProperties[] = [
 			},
 		],
 		description: 'The bucket to which the task belongs',
+	},
+	{
+		displayName: 'Bucket ID',
+		name: 'bucketId',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: {
+				'@tool': [true],
+				resource: ['task'],
+				operation: ['create'],
+			},
+		},
+		default: '',
+		description: 'The ID of the bucket to create the task in',
+		placeholder: 'e.g. FTmIDbes6UyAjh1k0suR3JgACHty',
 	},
 	{
 		displayName: 'Title',
@@ -205,6 +222,11 @@ export const taskFields: INodeProperties[] = [
 				name: 'attachmentsUi',
 				placeholder: 'Add Attachments',
 				type: 'fixedCollection',
+				displayOptions: {
+					show: {
+						'@tool': [false],
+					},
+				},
 				typeOptions: {
 					multipleValues: false,
 				},
@@ -314,10 +336,31 @@ export const taskFields: INodeProperties[] = [
 				description: 'Add attachments to the task',
 			},
 			{
+				displayName: 'Attachments JSON',
+				name: 'attachmentsJson',
+				type: 'string',
+				typeOptions: {
+					rows: 4,
+				},
+				default: '',
+				displayOptions: {
+					show: {
+						'@tool': [true],
+					},
+				},
+				placeholder: '[{"url":"https://example.com/file.docx","alias":"Spec","type":"Word"}]',
+				description: 'JSON array of attachments with url and optional alias and type fields',
+			},
+			{
 				displayName: 'Checklist',
 				name: 'checklistUi',
 				placeholder: 'Add Checklist',
 				type: 'fixedCollection',
+				displayOptions: {
+					show: {
+						'@tool': [false],
+					},
+				},
 				typeOptions: {
 					multipleValues: false,
 				},
@@ -409,6 +452,22 @@ export const taskFields: INodeProperties[] = [
 				],
 				description: 'Add checklist items to the task',
 			},
+			{
+				displayName: 'Checklist JSON',
+				name: 'checklistJson',
+				type: 'string',
+				typeOptions: {
+					rows: 4,
+				},
+				default: '',
+				displayOptions: {
+					show: {
+						'@tool': [true],
+					},
+				},
+				placeholder: '[{"title":"Review draft","isChecked":false}]',
+				description: 'JSON array of checklist items with title and optional isChecked and id fields',
+			},
 		],
 	},
 
@@ -421,6 +480,7 @@ export const taskFields: INodeProperties[] = [
 		required: true,
 		displayOptions: {
 			show: {
+				'@tool': [false],
 				resource: ['task'],
 				operation: ['get', 'delete', 'update'],
 			},
@@ -434,6 +494,22 @@ export const taskFields: INodeProperties[] = [
 			},
 		],
 		description: 'The task to operate on',
+	},
+	{
+		displayName: 'Task ID',
+		name: 'taskId',
+		type: 'string',
+		default: '',
+		required: true,
+		displayOptions: {
+			show: {
+				'@tool': [true],
+				resource: ['task'],
+				operation: ['get', 'delete', 'update'],
+			},
+		},
+		description: 'The ID of the task to retrieve, update, or delete',
+		placeholder: 'e.g. rz1EH6N_a0aLpRm-2QifxZgAF5OL',
 	},
 	{
 		displayName: 'Additional Fields',
@@ -506,6 +582,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'resourceLocator',
 		displayOptions: {
 			show: {
+				'@tool': [false],
 				resource: ['task'],
 				operation: ['getAll'],
 				filterBy: ['bucket'],
@@ -531,6 +608,23 @@ export const taskFields: INodeProperties[] = [
 				placeholder: 'e.g. FTmIDbes6UyAjh1k0suR3JgACHty',
 			},
 		],
+	},
+	{
+		displayName: 'Bucket ID',
+		name: 'bucketId',
+		type: 'string',
+		displayOptions: {
+			show: {
+				'@tool': [true],
+				resource: ['task'],
+				operation: ['getAll'],
+				filterBy: ['bucket'],
+			},
+		},
+		default: '',
+		required: true,
+		description: 'The ID of the bucket to filter tasks by',
+		placeholder: 'e.g. FTmIDbes6UyAjh1k0suR3JgACHty',
 	},
 	{
 		displayName: 'Additional Fields',
@@ -654,6 +748,11 @@ export const taskFields: INodeProperties[] = [
 				name: 'attachmentsUi',
 				placeholder: 'Add Attachments',
 				type: 'fixedCollection',
+				displayOptions: {
+					show: {
+						'@tool': [false],
+					},
+				},
 				typeOptions: {
 					multipleValues: false,
 				},
@@ -782,10 +881,31 @@ export const taskFields: INodeProperties[] = [
 				description: 'Add attachments to the task',
 			},
 			{
+				displayName: 'Attachments JSON',
+				name: 'attachmentsJson',
+				type: 'string',
+				typeOptions: {
+					rows: 4,
+				},
+				default: '',
+				displayOptions: {
+					show: {
+						'@tool': [true],
+					},
+				},
+				placeholder: '[{"url":"https://example.com/file.docx","alias":"Spec","type":"Word"}]',
+				description: 'JSON array of attachments with url and optional alias and type fields',
+			},
+			{
 				displayName: 'Checklist',
 				name: 'checklistUi',
 				placeholder: 'Add Checklist',
 				type: 'fixedCollection',
+				displayOptions: {
+					show: {
+						'@tool': [false],
+					},
+				},
 				typeOptions: {
 					multipleValues: false,
 				},
@@ -896,6 +1016,22 @@ export const taskFields: INodeProperties[] = [
 				],
 				description: 'Add checklist items to the task',
 			},
+			{
+				displayName: 'Checklist JSON',
+				name: 'checklistJson',
+				type: 'string',
+				typeOptions: {
+					rows: 4,
+				},
+				default: '',
+				displayOptions: {
+					show: {
+						'@tool': [true],
+					},
+				},
+				placeholder: '[{"title":"Review draft","isChecked":false}]',
+				description: 'JSON array of checklist items with title and optional isChecked and id fields',
+			},
 		],
 	},
 	// ----------------------------------
@@ -909,6 +1045,7 @@ export const taskFields: INodeProperties[] = [
 		required: true,
 		displayOptions: {
 			show: {
+				'@tool': [false],
 				resource: ['task'],
 				operation: ['getFiles'],
 			},
@@ -922,5 +1059,21 @@ export const taskFields: INodeProperties[] = [
 			},
 		],
 		description: 'The Task ID to get files from',
+	},
+	{
+		displayName: 'Task ID',
+		name: 'taskId',
+		type: 'string',
+		default: '',
+		required: true,
+		displayOptions: {
+			show: {
+				'@tool': [true],
+				resource: ['task'],
+				operation: ['getFiles'],
+			},
+		},
+		description: 'The ID of the task whose attached files should be returned',
+		placeholder: 'e.g. rz1EH6N_a0aLpRm-2QifxZgAF5OL',
 	},
 ];

@@ -47,6 +47,7 @@ export const commentFields: INodeProperties[] = [
         required: true,
         displayOptions: {
             show: {
+                '@tool': [false],
                 resource: ['comment'],
                 operation: ['create'],
             },
@@ -60,6 +61,22 @@ export const commentFields: INodeProperties[] = [
             },
         ],
         description: 'The task to comment on',
+    },
+    {
+        displayName: 'Task ID',
+        name: 'taskId',
+        type: 'string',
+        default: '',
+        required: true,
+        displayOptions: {
+            show: {
+                '@tool': [true],
+                resource: ['comment'],
+                operation: ['create'],
+            },
+        },
+        description: 'The ID of the task to comment on',
+        placeholder: 'e.g. rz1EH6N_a0aLpRm-2QifxZgAF5OL',
     },
     {
         displayName: 'Content',
@@ -122,6 +139,7 @@ export const commentFields: INodeProperties[] = [
         required: true,
         displayOptions: {
             show: {
+                '@tool': [false],
                 resource: ['comment'],
                 operation: ['getAll'],
             },
@@ -135,6 +153,22 @@ export const commentFields: INodeProperties[] = [
             },
         ],
         description: 'The task to get comments from',
+    },
+    {
+        displayName: 'Task ID',
+        name: 'taskId',
+        type: 'string',
+        default: '',
+        required: true,
+        displayOptions: {
+            show: {
+                '@tool': [true],
+                resource: ['comment'],
+                operation: ['getAll'],
+            },
+        },
+        description: 'The ID of the task whose comments should be returned',
+        placeholder: 'e.g. rz1EH6N_a0aLpRm-2QifxZgAF5OL',
     },
     {
         displayName: 'Additional Fields',

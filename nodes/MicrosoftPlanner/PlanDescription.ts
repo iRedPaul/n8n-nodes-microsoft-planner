@@ -65,6 +65,7 @@ export const planFields: INodeProperties[] = [
 		required: true,
 		displayOptions: {
 			show: {
+				'@tool': [false],
 				resource: ['plan'],
 				operation: ['create'],
 			},
@@ -87,6 +88,22 @@ export const planFields: INodeProperties[] = [
 			},
 		],
 		description: 'The Microsoft 365 group that will own the plan',
+	},
+	{
+		displayName: 'Owner Group ID',
+		name: 'owner',
+		type: 'string',
+		default: '',
+		required: true,
+		displayOptions: {
+			show: {
+				'@tool': [true],
+				resource: ['plan'],
+				operation: ['create'],
+			},
+		},
+		description: 'The Microsoft 365 group ID that should own the plan',
+		placeholder: 'e.g. 02bd9fd6-8f93-4758-87c3-1fb73740a315',
 	},
 	{
 		displayName: 'Title',
@@ -244,6 +261,11 @@ export const planFields: INodeProperties[] = [
 				type: 'collection',
 				placeholder: 'Add Category',
 				default: {},
+				displayOptions: {
+					show: {
+						'@tool': [false],
+					},
+				},
 				description: 'Labels for up to 25 categories on the plan',
 				options: [
 					{ displayName: 'Category 1', name: 'category1', type: 'string', default: '', description: 'Label for category1' },
@@ -272,6 +294,22 @@ export const planFields: INodeProperties[] = [
 					{ displayName: 'Category 24', name: 'category24', type: 'string', default: '', description: 'Label for category24' },
 					{ displayName: 'Category 25', name: 'category25', type: 'string', default: '', description: 'Label for category25' },
 				],
+			},
+			{
+				displayName: 'Category Descriptions JSON',
+				name: 'categoryDescriptionsJson',
+				type: 'string',
+				typeOptions: {
+					rows: 4,
+				},
+				default: '',
+				displayOptions: {
+					show: {
+						'@tool': [true],
+					},
+				},
+				placeholder: '{"category1":"Backlog","category2":"Blocked"}',
+				description: 'JSON object mapping category1 to category25 to their labels',
 			},
 			{
 				displayName: 'Shared With (plannerUserIds JSON)',

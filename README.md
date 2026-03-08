@@ -92,6 +92,7 @@ Configure the Microsoft Planner OAuth2 API credentials in n8n:
 - **Comprehensive Task Support**: Full support for Task details including Checklist items and Attachments
 - **Full CRUD Support**: Manage Tasks, Plans, and Buckets
 - **Comment Support**: Create and retrieve comments on tasks
+- **AI Tool Support**: The node can be exposed as a tool for AI Agent workflows in n8n
 
 ## Operations
 
@@ -126,6 +127,16 @@ Configure the Microsoft Planner OAuth2 API credentials in n8n:
 - **Get Many** - Get all comments from a task
 
 ## Usage
+
+### Using the Node as an AI Tool
+
+The node is marked as `usableAsTool`, so n8n can generate a corresponding AI tool variant for Agent workflows. This lets an AI agent create, read, update, and organize Microsoft Planner data through the same community node.
+
+For the best results in Agent workflows:
+- Prefer entering Planner, Bucket, Group, and Task IDs directly when configuring the tool
+- In tool mode, use ID-based fields instead of the list selectors where available
+- For complex task updates, prefer the JSON fields for attachments, checklist items, and plan category labels
+- Use a clear tool description in n8n so the model knows whether it should create, search, update, or delete Planner data
 
 ### Creating a Task
 

@@ -25,6 +25,25 @@ import { planFields, planOperations } from './PlanDescription';
 import { bucketFields, bucketOperations } from './BucketDescription';
 import { commentFields, commentOperations } from './CommentDescription';
 
+function getToolJsonCollection(
+	fields: IDataObject,
+	jsonFieldName: 'attachmentsJson' | 'checklistJson',
+	collectionName: 'attachments' | 'checklist',
+): IDataObject | undefined {
+	const jsonValue = fields[jsonFieldName];
+
+	if (typeof jsonValue !== 'string' || jsonValue.trim() === '') {
+		return undefined;
+	}
+
+	return {
+		[collectionName]: {
+			mode: 'json',
+			json: jsonValue.trim(),
+		},
+	};
+}
+
 export class MicrosoftPlanner implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Microsoft Planner',
@@ -33,9 +52,15 @@ export class MicrosoftPlanner implements INodeType {
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: 'Create and retrieve tasks in Microsoft Planner',
+		description: 'Manage tasks, plans, buckets, and comments in Microsoft Planner',
 		defaults: {
 			name: 'Microsoft Planner',
+		},
+		usableAsTool: {
+			replacements: {
+				description:
+					'Use this tool to create, find, update, and organize Microsoft Planner tasks, plans, buckets, and task comments in Microsoft 365.',
+			},
 		},
 		inputs: ['main'],
 		outputs: ['main'],
@@ -214,6 +239,10 @@ export class MicrosoftPlanner implements INodeType {
 							: (bucketIdParam as IDataObject).value as string;
 						const title = this.getNodeParameter('title', i) as string;
 						const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;
+						const attachmentsUi = (additionalFields.attachmentsUi as IDataObject)
+							?? getToolJsonCollection(additionalFields, 'attachmentsJson', 'attachments');
+						const checklistUi = (additionalFields.checklistUi as IDataObject)
+							?? getToolJsonCollection(additionalFields, 'checklistJson', 'checklist');
 
 						const body: IDataObject = {
 							planId,
@@ -264,8 +293,8 @@ export class MicrosoftPlanner implements INodeType {
 						// Add description, references, or checklist if provided
 						if (
 							additionalFields.description ||
-							additionalFields.attachmentsUi ||
-							additionalFields.checklistUi
+							attachmentsUi ||
+							checklistUi
 						) {
 							const details = await microsoftApiRequest.call(
 								this,
@@ -283,7 +312,6 @@ export class MicrosoftPlanner implements INodeType {
 
 							// Handle Attachments (Manual or JSON)
 							const referencesBody: IDataObject = {};
-							const attachmentsUi = additionalFields.attachmentsUi as IDataObject;
 							if (attachmentsUi && attachmentsUi.attachments) {
 								const attachments = attachmentsUi.attachments as IDataObject;
 								const mode = attachments.mode as string;
@@ -334,7 +362,6 @@ export class MicrosoftPlanner implements INodeType {
 
 							// Handle Checklist (Manual or JSON)
 							const checklistBody: IDataObject = {};
-							const checklistUi = additionalFields.checklistUi as IDataObject;
 							if (checklistUi && checklistUi.checklist) {
 								const checklist = checklistUi.checklist as IDataObject;
 								const mode = checklist.mode as string;
@@ -480,6 +507,10 @@ export class MicrosoftPlanner implements INodeType {
 						const taskIdParam = this.getNodeParameter('taskId', i);
 						const taskId = typeof taskIdParam === 'string' ? taskIdParam : (taskIdParam as IDataObject).value as string;
 						const updateFields = this.getNodeParameter('updateFields', i) as IDataObject;
+						const attachmentsUi = (updateFields.attachmentsUi as IDataObject)
+							?? getToolJsonCollection(updateFields, 'attachmentsJson', 'attachments');
+						const checklistUi = (updateFields.checklistUi as IDataObject)
+							?? getToolJsonCollection(updateFields, 'checklistJson', 'checklist');
 
 						// Get current task to retrieve eTag
 						const currentTask = await microsoftApiRequest.call(
@@ -551,8 +582,8 @@ export class MicrosoftPlanner implements INodeType {
 						// Update description, references, or checklist if provided
 						if (
 							updateFields.description ||
-							updateFields.attachmentsUi ||
-							updateFields.checklistUi
+							attachmentsUi ||
+							checklistUi
 						) {
 							const details = await microsoftApiRequest.call(
 								this,
@@ -570,8 +601,7 @@ export class MicrosoftPlanner implements INodeType {
 							const referencesBody: IDataObject = {};
 
 							// 1. If operationMode is 'replace', set all existing references to null
-							const attachmentsUiForReplace = updateFields.attachmentsUi as IDataObject;
-							const attachmentsForReplace = attachmentsUiForReplace?.attachments as IDataObject;
+							const attachmentsForReplace = attachmentsUi?.attachments as IDataObject;
 							const attachmentsOperationMode = attachmentsForReplace?.operationMode as string;
 							if (attachmentsOperationMode === 'replace' && details.references) {
 								for (const key of Object.keys(details.references)) {
@@ -580,7 +610,6 @@ export class MicrosoftPlanner implements INodeType {
 							}
 
 							// 2. Add new/updated references (Manual or JSON)
-							const attachmentsUi = updateFields.attachmentsUi as IDataObject;
 							if (attachmentsUi && attachmentsUi.attachments) {
 								const attachments = attachmentsUi.attachments as IDataObject;
 								const mode = attachments.mode as string;
@@ -633,8 +662,7 @@ export class MicrosoftPlanner implements INodeType {
 							const checklistBody: IDataObject = {};
 
 							// 1. If operationMode is 'replace', set all existing checklist items to null
-							const checklistUiForReplace = updateFields.checklistUi as IDataObject;
-							const checklistForReplace = checklistUiForReplace?.checklist as IDataObject;
+							const checklistForReplace = checklistUi?.checklist as IDataObject;
 							const checklistOperationMode = checklistForReplace?.operationMode as string;
 							if (checklistOperationMode === 'replace' && details.checklist) {
 								for (const key of Object.keys(details.checklist)) {
@@ -643,7 +671,6 @@ export class MicrosoftPlanner implements INodeType {
 							}
 
 							// 2. Add new/updated checklist items (Manual or JSON)
-							const checklistUi = updateFields.checklistUi as IDataObject;
 							if (checklistUi && checklistUi.checklist) {
 								const checklist = checklistUi.checklist as IDataObject;
 								const mode = checklist.mode as string;
@@ -714,7 +741,9 @@ export class MicrosoftPlanner implements INodeType {
 						if (
 							Object.prototype.hasOwnProperty.call(updateFields, 'description') ||
 							Object.prototype.hasOwnProperty.call(updateFields, 'attachmentsUi') ||
-							Object.prototype.hasOwnProperty.call(updateFields, 'checklistUi')
+							Object.prototype.hasOwnProperty.call(updateFields, 'attachmentsJson') ||
+							Object.prototype.hasOwnProperty.call(updateFields, 'checklistUi') ||
+							Object.prototype.hasOwnProperty.call(updateFields, 'checklistJson')
 						) {
 							const details = await microsoftApiRequest.call(
 								this,
@@ -921,6 +950,47 @@ export class MicrosoftPlanner implements INodeType {
 							}
 							if (Object.keys(cleanedCategories).length > 0) {
 								detailsBody.categoryDescriptions = cleanedCategories;
+							}
+						}
+
+						if (updateFields.categoryDescriptionsJson) {
+							let categoryDescriptionsParsed: IDataObject;
+							try {
+								categoryDescriptionsParsed = JSON.parse(
+									updateFields.categoryDescriptionsJson as string,
+								) as IDataObject;
+								if (
+									!categoryDescriptionsParsed ||
+									typeof categoryDescriptionsParsed !== 'object' ||
+									Array.isArray(categoryDescriptionsParsed)
+								) {
+									throw new Error('Not an object');
+								}
+							} catch (error) {
+								throw new NodeOperationError(
+									this.getNode(),
+									'Invalid JSON in Category Descriptions JSON field. It must be an object mapping category keys to labels.',
+									{ itemIndex: i },
+								);
+							}
+
+							const existingCategoryDescriptions =
+								(detailsBody.categoryDescriptions as IDataObject | undefined) ?? {};
+
+							for (const key of Object.keys(categoryDescriptionsParsed)) {
+								const value = categoryDescriptionsParsed[key] as
+									| string
+									| null
+									| undefined;
+								if (value === '') {
+									existingCategoryDescriptions[key] = null;
+								} else if (value !== undefined) {
+									existingCategoryDescriptions[key] = value;
+								}
+							}
+
+							if (Object.keys(existingCategoryDescriptions).length > 0) {
+								detailsBody.categoryDescriptions = existingCategoryDescriptions;
 							}
 						}
 
@@ -1328,5 +1398,3 @@ export class MicrosoftPlanner implements INodeType {
 		return [this.helpers.returnJsonArray(returnData)];
 	}
 }
-
-
