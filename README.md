@@ -137,7 +137,7 @@ For the best results in Agent workflows:
 
 - Prefer entering Planner, Bucket, Group, and Task IDs directly when configuring the tool
 - In tool mode, prefer the text and JSON fields instead of list selectors, date pickers, and dropdowns
-- Use `dueDateTimeText` and `startDateTimeText` for agent-supplied dates
+- Use `dueDateTimeText` and `startDateTimeText` with timezone-aware ISO 8601 values
 - Use `priorityText` with `urgent`, `important`, `medium`, or `low`
 - Use `scopeText`, `filterByText`, and `contentTypeText` for agent-friendly mode switches
 - For complex task updates, prefer the JSON fields for attachments, checklist items, and plan category labels
@@ -150,8 +150,8 @@ When the node runs as an n8n AI tool, the UI exposes simplified fields so the AI
 - `attachmentsJson`: JSON array of attachment objects
 - `checklistJson`: JSON array of checklist item objects
 - `categoryDescriptionsJson`: JSON object mapping Planner category keys to labels
-- `dueDateTimeText`: Free-text due date/time, ideally ISO 8601
-- `startDateTimeText`: Free-text start date/time, ideally ISO 8601
+- `dueDateTimeText`: Due date/time in timezone-aware ISO 8601 format
+- `startDateTimeText`: Start date/time in timezone-aware ISO 8601 format
 - `priorityText`: `urgent`, `important`, `medium`, or `low`
 - `scopeText`: `my` or `group`
 - `filterByText`: `plan` or `bucket`
@@ -170,7 +170,7 @@ Examples:
 ```json
 {
   "dueDateTimeText": "2026-03-08T14:30:00Z",
-  "startDateTimeText": "2026-03-01 09:00",
+  "startDateTimeText": "2026-03-01T09:00:00Z",
   "priorityText": "important",
   "scopeText": "group",
   "filterByText": "bucket",
@@ -198,7 +198,7 @@ Optional fields:
 - **Assigned To**: Comma-separated list of user emails (e.g., `user1@domain.com, user2@domain.com`)
 - **Due Date Time**: When the task should be completed
 - **Start Date Time**: When work on the task should begin
-- **Date Text Fields (tool mode)**: Use `dueDateTimeText` and `startDateTimeText` with ISO-like values such as `2026-03-08T14:30:00Z`
+- **Date Text Fields (tool mode)**: Use `dueDateTimeText` and `startDateTimeText` with timezone-aware ISO 8601 values such as `2026-03-08T14:30:00Z`
 - **Percent Complete**: Task completion percentage (0-100)
 - **Checklist**: Add multiple checklist items with titles and checked status
 - **Attachments**: Add external references/attachments with URLs, aliases, and types (Word, Excel, etc.)

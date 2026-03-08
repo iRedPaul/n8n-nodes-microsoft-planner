@@ -72,6 +72,39 @@ function getFormattedDateTimeOrThrow(
   return formattedValue;
 }
 
+function getToolFormattedDateTimeOrThrow(
+  context: IExecuteFunctions,
+  value: unknown,
+  fieldLabel: string,
+  itemIndex: number
+): string | undefined {
+  const trimmedValue = getTrimmedString(value);
+
+  if (!trimmedValue) {
+    return undefined;
+  }
+
+  const hasExplicitTimezone =
+    trimmedValue.endsWith("Z") ||
+    /[+-]\d{2}:\d{2}$/.test(trimmedValue) ||
+    /[+-]\d{4}$/.test(trimmedValue);
+
+  if (!hasExplicitTimezone) {
+    throw new NodeOperationError(
+      context.getNode(),
+      `Invalid ${fieldLabel}. Use a timezone-aware ISO 8601 value, for example "2026-03-08T14:30:00Z".`,
+      { itemIndex }
+    );
+  }
+
+  return getFormattedDateTimeOrThrow(
+    context,
+    trimmedValue,
+    fieldLabel,
+    itemIndex
+  );
+}
+
 function getMappedToolValueOrThrow<T extends string | number>(
   context: IExecuteFunctions,
   value: unknown,
@@ -346,24 +379,38 @@ export class MicrosoftPlanner implements INodeType {
               body.priority = additionalFields.priority;
             }
 
-            const formattedDueDateTime = getFormattedDateTimeOrThrow(
+            const toolDueDateTime = getToolFormattedDateTimeOrThrow(
               this,
-              getTrimmedString(additionalFields.dueDateTimeText) ??
-                additionalFields.dueDateTime,
+              additionalFields.dueDateTimeText,
               "Due Date Time field",
               i
             );
+            const formattedDueDateTime =
+              toolDueDateTime ??
+              getFormattedDateTimeOrThrow(
+                this,
+                additionalFields.dueDateTime,
+                "Due Date Time field",
+                i
+              );
             if (formattedDueDateTime) {
               body.dueDateTime = formattedDueDateTime;
             }
 
-            const formattedStartDateTime = getFormattedDateTimeOrThrow(
+            const toolStartDateTime = getToolFormattedDateTimeOrThrow(
               this,
-              getTrimmedString(additionalFields.startDateTimeText) ??
-                additionalFields.startDateTime,
+              additionalFields.startDateTimeText,
               "Start Date Time field",
               i
             );
+            const formattedStartDateTime =
+              toolStartDateTime ??
+              getFormattedDateTimeOrThrow(
+                this,
+                additionalFields.startDateTime,
+                "Start Date Time field",
+                i
+              );
             if (formattedStartDateTime) {
               body.startDateTime = formattedStartDateTime;
             }
@@ -596,6 +643,12 @@ export class MicrosoftPlanner implements INodeType {
           // ----------------------------------
           // Always return all tasks for the given scope; Graph does not honor $top/$limit
           if (operation === "getAll") {
+            const planId = this.getNodeParameter("planId", i, "") as string;
+            const bucketIdParam = this.getNodeParameter("bucketId", i, "");
+            const bucketIdValue =
+              typeof bucketIdParam === "string"
+                ? bucketIdParam
+                : ((bucketIdParam as IDataObject).value as string);
             const toolFilterBy = getMappedToolValueOrThrow(
               this,
               this.getNodeParameter("filterByText", i, ""),
@@ -607,8 +660,12 @@ export class MicrosoftPlanner implements INodeType {
               i
             );
             const filterBy =
-              toolFilterBy ?? (this.getNodeParameter("filterBy", i) as string);
-            const planId = this.getNodeParameter("planId", i, "") as string;
+              toolFilterBy ??
+              (getTrimmedString(bucketIdValue)
+                ? "bucket"
+                : getTrimmedString(planId)
+                  ? "plan"
+                  : (this.getNodeParameter("filterBy", i) as string));
 
             let endpoint = "";
 
@@ -622,11 +679,6 @@ export class MicrosoftPlanner implements INodeType {
               }
               endpoint = `/planner/plans/${planId}/tasks`;
             } else if (filterBy === "bucket") {
-              const bucketIdParam = this.getNodeParameter("bucketId", i);
-              const bucketIdValue =
-                typeof bucketIdParam === "string"
-                  ? bucketIdParam
-                  : ((bucketIdParam as IDataObject).value as string);
               if (!getTrimmedString(bucketIdValue)) {
                 throw new NodeOperationError(
                   this.getNode(),
@@ -721,24 +773,38 @@ export class MicrosoftPlanner implements INodeType {
               body.priority = updateFields.priority;
             }
 
-            const formattedDueDateTime = getFormattedDateTimeOrThrow(
+            const toolDueDateTime = getToolFormattedDateTimeOrThrow(
               this,
-              getTrimmedString(updateFields.dueDateTimeText) ??
-                updateFields.dueDateTime,
+              updateFields.dueDateTimeText,
               "Due Date Time field",
               i
             );
+            const formattedDueDateTime =
+              toolDueDateTime ??
+              getFormattedDateTimeOrThrow(
+                this,
+                updateFields.dueDateTime,
+                "Due Date Time field",
+                i
+              );
             if (formattedDueDateTime) {
               body.dueDateTime = formattedDueDateTime;
             }
 
-            const formattedStartDateTime = getFormattedDateTimeOrThrow(
+            const toolStartDateTime = getToolFormattedDateTimeOrThrow(
               this,
-              getTrimmedString(updateFields.startDateTimeText) ??
-                updateFields.startDateTime,
+              updateFields.startDateTimeText,
               "Start Date Time field",
               i
             );
+            const formattedStartDateTime =
+              toolStartDateTime ??
+              getFormattedDateTimeOrThrow(
+                this,
+                updateFields.startDateTime,
+                "Start Date Time field",
+                i
+              );
             if (formattedStartDateTime) {
               body.startDateTime = formattedStartDateTime;
             }
@@ -1131,6 +1197,7 @@ export class MicrosoftPlanner implements INodeType {
           // plan:getAll -> list plans scoped to current user or a specific group
           // Always return all plans; Graph does not honor $top/$limit for Planner.
           if (operation === "getAll") {
+            const groupId = this.getNodeParameter("groupId", i, "") as string;
             const toolScope = getMappedToolValueOrThrow(
               this,
               this.getNodeParameter("scopeText", i, ""),
@@ -1142,7 +1209,10 @@ export class MicrosoftPlanner implements INodeType {
               i
             );
             const scope =
-              toolScope ?? (this.getNodeParameter("scope", i) as string);
+              toolScope ??
+              (getTrimmedString(groupId)
+                ? "group"
+                : (this.getNodeParameter("scope", i) as string));
             let endpoint = "";
 
             if (scope === "my") {
@@ -1150,7 +1220,6 @@ export class MicrosoftPlanner implements INodeType {
               endpoint = "/me/planner/plans";
             } else if (scope === "group") {
               // List plans owned by a specific Microsoft 365 group
-              const groupId = this.getNodeParameter("groupId", i, "") as string;
               if (!getTrimmedString(groupId)) {
                 throw new NodeOperationError(
                   this.getNode(),

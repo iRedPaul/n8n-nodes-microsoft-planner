@@ -202,7 +202,7 @@ export const taskFields: INodeProperties[] = [
         },
         placeholder: "2026-03-08T14:30:00Z",
         description:
-          "Date/time text for when the task is due. Use ISO 8601 when possible, for example 2026-03-08T14:30:00Z.",
+          "Date/time text for when the task is due. Use timezone-aware ISO 8601, for example 2026-03-08T14:30:00Z.",
       },
       {
         displayName: "Percent Complete",
@@ -277,9 +277,9 @@ export const taskFields: INodeProperties[] = [
             "@tool": [true],
           },
         },
-        placeholder: "2026-03-01 09:00",
+        placeholder: "2026-03-01T09:00:00Z",
         description:
-          "Date/time text for when work on the task should start. ISO 8601 works best, for example 2026-03-01T09:00:00Z.",
+          "Date/time text for when work on the task should start. Use timezone-aware ISO 8601, for example 2026-03-01T09:00:00Z.",
       },
       {
         displayName: "Attachments",
@@ -826,7 +826,7 @@ export const taskFields: INodeProperties[] = [
         },
         placeholder: "2026-03-08T14:30:00Z",
         description:
-          "Date/time text for when the task is due. Use ISO 8601 when possible, for example 2026-03-08T14:30:00Z.",
+          "Date/time text for when the task is due. Use timezone-aware ISO 8601, for example 2026-03-08T14:30:00Z.",
       },
       {
         displayName: "Percent Complete",
@@ -901,9 +901,9 @@ export const taskFields: INodeProperties[] = [
             "@tool": [true],
           },
         },
-        placeholder: "2026-03-01 09:00",
+        placeholder: "2026-03-01T09:00:00Z",
         description:
-          "Date/time text for when work on the task should start. ISO 8601 works best, for example 2026-03-01T09:00:00Z.",
+          "Date/time text for when work on the task should start. Use timezone-aware ISO 8601, for example 2026-03-01T09:00:00Z.",
       },
       {
         displayName: "Title",
