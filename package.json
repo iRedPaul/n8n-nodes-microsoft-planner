@@ -1,6 +1,6 @@
 {
-  "name": "@united-workspace/n8n-nodes-microsoft-planner",
-  "version": "1.5.5",
+  "name": "@iredpaul/n8n-nodes-microsoft-planner",
+  "version": "1.6.0",
   "description": "n8n node for Microsoft Planner - Create and retrieve tasks",
   "keywords": [
     "n8n-community-node-package",
@@ -10,11 +10,10 @@
     "tasks"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/united-workspace/n8n-nodes-microsoft-planner",
+  "homepage": "https://github.com/iRedPaul/n8n-nodes-microsoft-planner",
   "author": {
-    "name": "United Workspace GmbH",
-    "email": "hello@united-workspace.de",
-    "url": "https://united-workspace.de"
+    "name": "iRedPaul",
+    "url": "https://github.com/iRedPaul"
   },
   "contributes": [
     {
@@ -24,9 +23,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/united-workspace/n8n-nodes-microsoft-planner.git"
+    "url": "https://github.com/iRedPaul/n8n-nodes-microsoft-planner.git"
   },
-  "main": "index.js",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc && gulp build:icons",
     "dev": "tsc --watch",

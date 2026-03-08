@@ -14,7 +14,7 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 1. Go to **Settings > Community Nodes** in your n8n instance
 2. Select **Install**
-3. Enter `@united-workspace/n8n-nodes-microsoft-planner` in **Enter npm package name**
+3. Enter `@iredpaul/n8n-nodes-microsoft-planner` in **Enter npm package name**
 4. Agree to the [risks](https://docs.n8n.io/integrations/community-nodes/risks/) of using community nodes
 5. Select **Install**
 
@@ -25,7 +25,7 @@ After installing the node, you can use it like any other node in your workflows.
 To install manually:
 
 ```bash
-npm install @united-workspace/n8n-nodes-microsoft-planner
+npm install @iredpaul/n8n-nodes-microsoft-planner
 ```
 
 ## Prerequisites
@@ -351,6 +351,22 @@ Tested with n8n version 1.0.0 and above.
 
 ## Version History
 
+### 1.6.0
+
+- **New Feature: AI Tool Support for n8n Agents**
+  - Marked the node as `usableAsTool` so it can be exposed directly in AI Agent workflows.
+  - Expanded the node description from tasks-only to full Microsoft Planner management for tasks, plans, buckets, and comments.
+  - Added dedicated tool-friendly ID fields for task, bucket, plan owner group, and comment operations to avoid selector-based inputs in tool mode.
+
+- **Improved AI Tool Input Fields**
+  - Added text and JSON inputs optimized for agents, including `attachmentsJson`, `checklistJson`, `categoryDescriptionsJson`, `priorityText`, `scopeText`, `filterByText`, and `contentTypeText`.
+  - Added tool-mode support for JSON-based attachments and checklist updates, plus JSON category label updates for plans.
+  - Improved operation inference so plan and task listing can derive the correct scope or filter from provided IDs in tool mode.
+
+- **UI and Credential Improvements**
+  - Updated the README with AI tool usage guidance and examples for agent workflows.
+  - Marked the OAuth2 access token URL credential field as sensitive.
+
 ### 1.5.5
 
 - **Bug Fix: $select Duplication**
@@ -535,16 +551,14 @@ Tested with n8n version 1.0.0 and above.
 
 ## Author
 
-Managed by **United Workspace GmbH**
+Managed by **iRedPaul**
 
 ## Credits
 
 This node was originally developed by [**Blickwerk Media UG**](https://github.com/blickwerk/n8n-nodes-microsoft-planner). We are grateful for their excellent work and contributions to the n8n community.
 
-This version is a fork managed and actively developed by **United Workspace GmbH** to ensure continued support and new features for the n8n community.
-
-**Web**: [united-workspace.de](https://united-workspace.de)
+This version is a fork managed and actively developed by **iRedPaul** to ensure continued support and new features for the n8n community.
 
 ## Support
 
-For issues, questions, or contributions, please visit the [GitHub repository](https://github.com/united-workspace/n8n-nodes-microsoft-planner).
+For issues, questions, or contributions, please visit the [GitHub repository](https://github.com/iRedPaul/n8n-nodes-microsoft-planner).
